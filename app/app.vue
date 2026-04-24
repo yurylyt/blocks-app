@@ -28,9 +28,11 @@ async function logout() {
 
       <template #right>
         <template v-if="loggedIn">
-          <UButton to="/" variant="ghost" color="neutral" size="sm">Week</UButton>
-          <UButton to="/stats" variant="ghost" color="neutral" size="sm">Stats</UButton>
-          <UButton to="/activities" variant="ghost" color="neutral" size="sm">Activities</UButton>
+          <div class="hidden sm:flex items-center gap-1">
+            <UButton to="/" variant="ghost" color="neutral" size="sm">Week</UButton>
+            <UButton to="/stats" variant="ghost" color="neutral" size="sm">Stats</UButton>
+            <UButton to="/activities" variant="ghost" color="neutral" size="sm">Activities</UButton>
+          </div>
           <UDropdownMenu
             :items="[
               [{ label: user?.email, type: 'label' }],
@@ -46,6 +48,14 @@ async function logout() {
           </UDropdownMenu>
         </template>
         <UColorModeButton />
+      </template>
+
+      <template #body>
+        <div v-if="loggedIn" class="flex flex-col gap-1 p-4">
+          <UButton to="/" variant="ghost" color="neutral" block>Week</UButton>
+          <UButton to="/stats" variant="ghost" color="neutral" block>Stats</UButton>
+          <UButton to="/activities" variant="ghost" color="neutral" block>Activities</UButton>
+        </div>
       </template>
     </UHeader>
 
