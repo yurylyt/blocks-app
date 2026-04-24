@@ -25,7 +25,8 @@ export const activities = pgTable('activities', {
 export const entries = pgTable('entries', {
   id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
   userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  activityId: integer('activity_id').notNull().references(() => activities.id, { onDelete: 'restrict' }),
+  activityId: integer('activity_id').references(() => activities.id, { onDelete: 'restrict' }),
+  name: text('name'),
   date: text('date').notNull(),
   blocks: real('blocks').notNull().default(1),
   position: integer('position').notNull().default(0),

@@ -11,7 +11,7 @@ const emit = defineEmits<{
   remove: [entry: Entry]
 }>()
 
-const name = computed(() => props.activity?.name ?? 'Unknown')
+const name = computed(() => props.activity?.name ?? props.entry.name ?? 'Unknown')
 const color = computed(() => props.activity?.color ?? '#64748b')
 const isHalf = computed(() => props.entry.blocks === 0.5)
 </script>

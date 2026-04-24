@@ -44,20 +44,19 @@ async function addExisting(a: Activity) {
   }
 }
 
-async function createCustom() {
+async function addCustom() {
   const name = customName.value.trim()
   if (!name || busy.value) return
   busy.value = true
   try {
-    const a = await $fetch<Activity>('/api/activities', { method: 'POST', body: { name } })
     await $fetch('/api/entries', {
       method: 'POST',
-      body: { activityId: a.id, date: props.date, blocks: 1 }
+      body: { name, date: props.date, blocks: 1 }
     })
     emit('created')
     open.value = false
   } catch (e: any) {
-    toast.add({ title: 'Failed to create', description: e?.data?.message, color: 'error' })
+    toast.add({ title: 'Failed to add', description: e?.data?.message, color: 'error' })
   } finally {
     busy.value = false
   }
@@ -105,10 +104,10 @@ async function createCustom() {
         </template>
 
         <template v-else>
-          <form class="flex items-center gap-1 p-1" @submit.prevent="createCustom">
+          <form class="flex items-center gap-1 p-1" @submit.prevent="addCustom">
             <UInput
               v-model="customName"
-              placeholder="New activity"
+              placeholder="One-off block"
               :disabled="busy"
               autofocus
               size="sm"

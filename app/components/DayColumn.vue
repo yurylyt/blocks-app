@@ -65,7 +65,7 @@ const totalLabel = computed(() => {
         v-for="e in sortedEntries"
         :key="e.id"
         :entry="e"
-        :activity="activitiesById.get(e.activityId)"
+        :activity="e.activityId != null ? activitiesById.get(e.activityId) : undefined"
         @toggle="emit('toggle', $event)"
         @remove="emit('remove', $event)"
       />

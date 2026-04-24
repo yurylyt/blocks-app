@@ -8,6 +8,13 @@
       "when": 1777047857356,
       "tag": "0000_peaceful_jimmy_woo",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1777050726947,
+      "tag": "0001_mushy_joystick",
+      "breakpoints": true
     }
   ]
 }
