@@ -8,24 +8,23 @@ export default defineOAuthGoogleEventHandler({
   },
   async onSuccess(event, { user }) {
     const db = useDb()
-    const existing = db.select().from(schema.users).where(eq(schema.users.googleId, user.sub)).get()
+    const [existing] = await db.select().from(schema.users).where(eq(schema.users.googleId, user.sub))
 
     let userId: number
     if (existing) {
       userId = existing.id
-      db.update(schema.users)
+      await db.update(schema.users)
         .set({ email: user.email, name: user.name, avatarUrl: user.picture ?? null })
         .where(eq(schema.users.id, userId))
-        .run()
     } else {
-      const inserted = db.insert(schema.users).values({
+      const [inserted] = await db.insert(schema.users).values({
         googleId: user.sub,
         email: user.email,
         name: user.name,
         avatarUrl: user.picture ?? null
-      }).returning({ id: schema.users.id }).get()
+      }).returning({ id: schema.users.id })
       userId = inserted!.id
-      seedDefaultActivities(userId)
+      await seedDefaultActivities(userId)
     }
 
     await setUserSession(event, {
