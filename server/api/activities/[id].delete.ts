@@ -7,20 +7,19 @@ export default defineEventHandler(async (event) => {
   if (!Number.isFinite(id)) throw createError({ statusCode: 400, message: 'Invalid id' })
 
   const db = useDb()
-  const used = db.select({ id: schema.entries.id }).from(schema.entries)
+  const [used] = await db.select({ id: schema.entries.id }).from(schema.entries)
     .where(and(eq(schema.entries.activityId, id), eq(schema.entries.userId, userId)))
-    .limit(1).get()
+    .limit(1)
 
   if (used) {
-    const row = db.update(schema.activities).set({ archivedAt: new Date() })
+    const [row] = await db.update(schema.activities).set({ archivedAt: new Date() })
       .where(and(eq(schema.activities.id, id), eq(schema.activities.userId, userId)))
-      .returning().get()
+      .returning()
     if (!row) throw createError({ statusCode: 404, message: 'Not found' })
     return { ...row, deleted: false }
   }
 
-  db.delete(schema.activities)
+  await db.delete(schema.activities)
     .where(and(eq(schema.activities.id, id), eq(schema.activities.userId, userId)))
-    .run()
   return { id, deleted: true }
 })

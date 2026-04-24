@@ -18,9 +18,9 @@ export default defineEventHandler(async (event) => {
   if (Object.keys(patch).length === 0) return { ok: true }
 
   const db = useDb()
-  const row = db.update(schema.activities).set(patch)
+  const [row] = await db.update(schema.activities).set(patch)
     .where(and(eq(schema.activities.id, id), eq(schema.activities.userId, userId)))
-    .returning().get()
+    .returning()
   if (!row) throw createError({ statusCode: 404, message: 'Not found' })
   return row
 })

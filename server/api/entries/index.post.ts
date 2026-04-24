@@ -14,18 +14,16 @@ export default defineEventHandler(async (event) => {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw createError({ statusCode: 400, message: 'Invalid date' })
 
   const db = useDb()
-  const activity = db.select({ id: schema.activities.id }).from(schema.activities)
+  const [activity] = await db.select({ id: schema.activities.id }).from(schema.activities)
     .where(and(eq(schema.activities.id, activityId), eq(schema.activities.userId, userId)))
-    .get()
   if (!activity) throw createError({ statusCode: 404, message: 'Activity not found' })
 
-  const next = db.select({ m: sql<number>`COALESCE(MAX(${schema.entries.position}), -1)` })
+  const [next] = await db.select({ m: sql<number>`COALESCE(MAX(${schema.entries.position}), -1)` })
     .from(schema.entries)
     .where(and(eq(schema.entries.userId, userId), eq(schema.entries.date, date)))
-    .get()
-  const position = (next?.m ?? -1) + 1
+  const position = (Number(next?.m ?? -1)) + 1
 
-  const row = db.insert(schema.entries).values({ userId, activityId, date, blocks, position })
-    .returning().get()
+  const [row] = await db.insert(schema.entries).values({ userId, activityId, date, blocks, position })
+    .returning()
   return row
 })

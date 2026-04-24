@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   const color = body?.color?.trim() || '#22c55e'
 
   const db = useDb()
-  const row = db.insert(schema.activities).values({ userId, name, color })
-    .returning().get()
+  const [row] = await db.insert(schema.activities).values({ userId, name, color })
+    .returning()
   return row
 })

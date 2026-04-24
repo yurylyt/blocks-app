@@ -11,12 +11,11 @@ export default defineEventHandler(async (event) => {
   }
 
   const db = useDb()
-  const rows = db.select().from(schema.entries)
+  const rows = await db.select().from(schema.entries)
     .where(and(
       eq(schema.entries.userId, userId),
       between(schema.entries.date, from, to)
     ))
     .orderBy(asc(schema.entries.date), asc(schema.entries.position), asc(schema.entries.id))
-    .all()
   return rows
 })

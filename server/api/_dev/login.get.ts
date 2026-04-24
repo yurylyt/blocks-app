@@ -12,11 +12,11 @@ export default defineEventHandler(async (event) => {
   const googleId = `dev-${email}`
 
   const db = useDb()
-  let user = db.select().from(schema.users).where(eq(schema.users.googleId, googleId)).get()
+  let [user] = await db.select().from(schema.users).where(eq(schema.users.googleId, googleId))
   if (!user) {
-    const ins = db.insert(schema.users).values({ googleId, email, name, avatarUrl: null }).returning().get()
+    const [ins] = await db.insert(schema.users).values({ googleId, email, name, avatarUrl: null }).returning()
     user = ins!
-    seedDefaultActivities(user.id)
+    await seedDefaultActivities(user.id)
   }
 
   await setUserSession(event, {

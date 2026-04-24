@@ -8,9 +8,9 @@ const DEFAULT_ACTIVITIES: Array<{ name: string, color: string }> = [
   { name: 'Meetings', color: '#ef4444' }
 ]
 
-export function seedDefaultActivities(userId: number) {
+export async function seedDefaultActivities(userId: number) {
   const db = useDb()
-  db.insert(schema.activities).values(
+  await db.insert(schema.activities).values(
     DEFAULT_ACTIVITIES.map(a => ({ userId, name: a.name, color: a.color }))
-  ).run()
+  )
 }

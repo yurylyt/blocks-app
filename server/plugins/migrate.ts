@@ -1,8 +1,8 @@
-import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
+import { migrate } from 'drizzle-orm/postgres-js/migrator'
 import { resolve } from 'node:path'
 import { useDb } from '../database/client'
 
-export default defineNitroPlugin(() => {
+export default defineNitroPlugin(async () => {
   const db = useDb()
-  migrate(db, { migrationsFolder: resolve('server/database/migrations') })
+  await migrate(db, { migrationsFolder: resolve('server/database/migrations') })
 })

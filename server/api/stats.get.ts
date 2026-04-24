@@ -24,12 +24,12 @@ export default defineEventHandler(async (event): Promise<StatsResponse> => {
     between(schema.entries.date, from, to)
   )
 
-  const byDay = db.select({
+  const byDay = await db.select({
     date: schema.entries.date,
     blocks: sql<number>`SUM(${schema.entries.blocks})`
-  }).from(schema.entries).where(where).groupBy(schema.entries.date).all()
+  }).from(schema.entries).where(where).groupBy(schema.entries.date)
 
-  const byActivity = db.select({
+  const byActivity = await db.select({
     activityId: schema.activities.id,
     name: schema.activities.name,
     color: schema.activities.color,
@@ -39,7 +39,6 @@ export default defineEventHandler(async (event): Promise<StatsResponse> => {
     .innerJoin(schema.activities, eq(schema.activities.id, schema.entries.activityId))
     .where(where)
     .groupBy(schema.activities.id, schema.activities.name, schema.activities.color)
-    .all()
 
   const total = byDay.reduce((s, r) => s + Number(r.blocks ?? 0), 0)
 
