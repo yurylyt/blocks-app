@@ -5,7 +5,7 @@ Track your academic blocks (2h each). Log activities per day, no time-of-day —
 ## Stack
 
 - Nuxt 4 + Nuxt UI
-- SQLite + Drizzle ORM (`better-sqlite3`)
+- PostgreSQL + Drizzle ORM (`postgres-js`)
 - `nuxt-auth-utils` with direct Google OAuth
 - PM2 for deployment
 
@@ -39,7 +39,7 @@ pm2 save
 ```
 
 - The app listens on `HOST:PORT` from env (defaults `127.0.0.1:3000`). Front with nginx + TLS.
-- SQLite file lives at `DATABASE_URL` (default `./data/blocks.db`). Back it up.
+- PostgreSQL connection is configured with `DATABASE_URL`. Back up the database.
 - Migrations run automatically on startup via a Nitro plugin.
 
 Google OAuth redirect URI: `https://your-domain.example/auth/google`.

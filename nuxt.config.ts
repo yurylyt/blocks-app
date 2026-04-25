@@ -13,7 +13,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-01-15',
 
   runtimeConfig: {
-    databaseUrl: process.env.DATABASE_URL || './data/blocks.db'
+    databaseUrl: process.env.DATABASE_URL || ''
   },
 
   eslint: {

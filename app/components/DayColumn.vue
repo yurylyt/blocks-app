@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useSortable, moveArrayElement } from '@vueuse/integrations/useSortable'
+import type { UseSortableOptions } from '@vueuse/integrations/useSortable'
 import type { Activity, Entry } from '~~/server/database/schema'
 
 const props = defineProps<{
@@ -24,14 +25,17 @@ const sortedEntries = ref<Entry[]>([...props.entries])
 watch(() => props.entries, (val) => { sortedEntries.value = [...val] })
 
 const listEl = ref<HTMLElement | null>(null)
-useSortable(listEl, sortedEntries, {
+const sortableOptions = {
   handle: '.drag-handle',
   animation: 150,
-  onUpdate: (e) => {
-    moveArrayElement(sortedEntries, e.oldIndex!, e.newIndex!)
+  onUpdate: (e: { oldIndex?: number, newIndex?: number }) => {
+    if (e.oldIndex == null || e.newIndex == null) return
+    moveArrayElement(sortedEntries, e.oldIndex, e.newIndex)
     nextTick(() => emit('reorder', [...sortedEntries.value]))
-  },
-})
+  }
+} as UseSortableOptions
+
+useSortable(listEl, sortedEntries, sortableOptions)
 
 const total = computed(() =>
   props.entries.reduce((sum, e) => sum + e.blocks, 0)
