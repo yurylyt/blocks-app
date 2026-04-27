@@ -1,21 +1,24 @@
 import Foundation
-import AVFoundation
+import UserNotifications
 
 @MainActor
 enum Chime {
-    private static var player: AVAudioPlayer?
-
-    static func playOnce(firstEntryId: Int, second: Bool) {
-        let key = second ? "chime-played:second:\(firstEntryId)" : "chime-played:\(firstEntryId)"
-        if UserDefaults.standard.bool(forKey: key) { return }
+    static func notify(firstEntryId: Int, completed: Bool, activityName: String?) {
+        let key = completed ? "chime-played:second:\(firstEntryId)" : "chime-played:\(firstEntryId)"
+        guard !UserDefaults.standard.bool(forKey: key) else { return }
         UserDefaults.standard.set(true, forKey: key)
-        guard let url = Bundle.main.url(forResource: "chime-1", withExtension: "mp3") else { return }
-        do {
-            player = try AVAudioPlayer(contentsOf: url)
-            player?.volume = 0.7
-            player?.play()
-        } catch {
-            // ignore playback failures
+
+        let content = UNMutableNotificationContent()
+        if completed {
+            content.title = "Timer complete!"
+            content.body = activityName ?? ""
+        } else {
+            content.title = "Half-time!"
+            content.body = "Time to log what you worked on"
         }
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("chime-1.caf"))
+
+        let request = UNNotificationRequest(identifier: key, content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(request)
     }
 }
