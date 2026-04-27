@@ -41,6 +41,18 @@ export default defineOAuthGoogleEventHandler({
       loggedInAt: Date.now()
     })
 
+    if (getCookie(event, 'menubar_auth') === '1') {
+      deleteCookie(event, 'menubar_auth')
+      const raw = getResponseHeader(event, 'set-cookie')
+      const headers = (Array.isArray(raw) ? raw : raw ? [raw] : []) as string[]
+      const entry = headers.find(h => h.startsWith('nuxt-session='))
+      if (entry) {
+        const value = entry.split(';')[0]!.slice('nuxt-session='.length)
+        return sendRedirect(event, `blocks-menubar://auth/callback?session=${encodeURIComponent(value)}`)
+      }
+      return sendRedirect(event, '/login?error=menubar')
+    }
+
     return sendRedirect(event, '/')
   },
   onError(event, error) {

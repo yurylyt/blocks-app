@@ -32,3 +32,10 @@ data/
 
 # Superpowers brainstorm sessions
 .superpowers/
+
+# Xcode (macos/ menubar app)
+macos/**/build/
+macos/**/DerivedData/
+macos/**/*.xcuserdata/
+macos/**/xcuserdata/
+macos/**/*.xcodeproj/

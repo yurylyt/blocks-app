@@ -1,0 +1,35 @@
+name: BlocksMenuBar
+options:
+  bundleIdPrefix: com.smerekatech.blocks
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+targets:
+  BlocksMenuBar:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources
+      - path: Resources
+        buildPhase: resources
+    info:
+      path: Sources/Info.plist
+      properties:
+        LSUIElement: true
+        CFBundleDisplayName: Blocks
+        CFBundleShortVersionString: "0.1"
+        CFBundleVersion: "1"
+        CFBundleURLTypes:
+          - CFBundleURLName: com.smerekatech.blocks.menubar
+            CFBundleURLSchemes: [blocks-menubar]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.smerekatech.blocks.menubar
+        PRODUCT_NAME: BlocksMenuBar
+        ENABLE_HARDENED_RUNTIME: YES
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: "-"
+        SWIFT_VERSION: "5.9"
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+        GENERATE_INFOPLIST_FILE: NO
