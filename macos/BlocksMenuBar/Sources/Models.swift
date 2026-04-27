@@ -21,7 +21,8 @@ struct Entry: Codable, Identifiable, Hashable {
 }
 
 struct ApiTimer: Codable, Hashable {
-    let activityId: Int
+    let activityId: Int?
+    let name: String?
     let startedAt: Date
     let startedDate: String
     let half: Int
