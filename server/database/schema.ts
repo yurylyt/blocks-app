@@ -1,4 +1,5 @@
-import { pgTable, text, integer, real, timestamp, index, uniqueIndex } from 'drizzle-orm/pg-core'
+import { pgTable, text, integer, real, timestamp, index, uniqueIndex, check } from 'drizzle-orm/pg-core'
+import { sql } from 'drizzle-orm'
 
 export const users = pgTable('users', {
   id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
@@ -39,13 +40,15 @@ export const entries = pgTable('entries', {
 export const runningTimers = pgTable('running_timers', {
   id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
   userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  activityId: integer('activity_id').notNull().references(() => activities.id, { onDelete: 'cascade' }),
+  activityId: integer('activity_id').references(() => activities.id, { onDelete: 'cascade' }),
+  name: text('name'),
   startedAt: timestamp('started_at', { withTimezone: true }).notNull().defaultNow(),
   startedDate: text('started_date').notNull(),
   half: integer('half').notNull().default(1),
   firstEntryId: integer('first_entry_id').references(() => entries.id, { onDelete: 'set null' })
 }, t => [
-  uniqueIndex('running_timers_user_unique').on(t.userId)
+  uniqueIndex('running_timers_user_unique').on(t.userId),
+  check('running_timers_activity_xor_name', sql`(${t.activityId} IS NULL) <> (${t.name} IS NULL)`)
 ])
 
 export type User = typeof users.$inferSelect
