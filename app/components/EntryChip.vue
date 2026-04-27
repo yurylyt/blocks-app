@@ -61,13 +61,13 @@ function onToggleClick() {
       :title="isHalf ? 'Switch to full block' : 'Switch to half block'"
       @click="onToggleClick"
     >
-      <span class="truncate">{{ name }}</span>
       <span
-        class="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded px-1.5 text-xs font-semibold"
+        class="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded px-1.5 text-xs font-semibold"
         :class="isHalf ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400' : 'bg-primary/15 text-primary'"
       >
         {{ isHalf ? '½' : '1' }}
       </span>
+      <span class="truncate">{{ name }}</span>
     </button>
     <EditEntryMenu
       :entry="entry"
