@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Activity } from '~~/server/database/schema'
 import { CHIME_SOUNDS, type ChimeSound } from '~~/shared/chime'
-import { PALETTE, type SwatchId } from '~~/shared/palette'
+import { PALETTE, resolveSwatch, type SwatchId } from '~~/shared/palette'
 
 const toast = useToast()
 const { user, setChime } = useUser()
@@ -78,6 +78,27 @@ async function unarchive(a: Activity) {
 const isDark = useIsDark()
 const newSwatchPreview = computed(() => pickSwatch(newColor.value, isDark.value))
 const swatchFor = (color: string | null | undefined) => pickSwatch(color, isDark.value)
+
+const usedColorMap = computed(() => {
+  const map = new Map<SwatchId, Activity[]>()
+  for (const a of active.value) {
+    const id = resolveSwatch(a.color).id
+    const list = map.get(id)
+    if (list) list.push(a)
+    else map.set(id, [a])
+  }
+  return map
+})
+
+function colorUsage(color: SwatchId, excludeId?: number): Activity[] {
+  const list = usedColorMap.value.get(color) ?? []
+  return excludeId == null ? list : list.filter(a => a.id !== excludeId)
+}
+
+function colorTitle(name: string, color: SwatchId, excludeId?: number): string {
+  const usage = colorUsage(color, excludeId)
+  return usage.length ? `${name} — used by ${usage.map(a => a.name).join(', ')}` : name
+}
 </script>
 
 <template>
@@ -147,14 +168,20 @@ const swatchFor = (color: string | null | undefined) => pickSwatch(color, isDark
           v-for="p in PALETTE"
           :key="p.id"
           type="button"
-          class="aspect-square rounded-md cursor-pointer transition box-border"
+          class="aspect-square rounded-md cursor-pointer transition box-border relative flex items-center justify-center"
           :style="{
             background: swatchFor(p.id).dot,
             outline: newColor === p.id ? '2px solid currentColor' : '2px solid transparent'
           }"
-          :title="p.name"
+          :title="colorTitle(p.name, p.id)"
           @click="newColor = p.id"
-        />
+        >
+          <span
+            v-if="colorUsage(p.id).length"
+            class="size-2 rounded-full"
+            :style="{ background: swatchFor(p.id).text }"
+          />
+        </button>
       </div>
     </UCard>
 
@@ -186,14 +213,20 @@ const swatchFor = (color: string | null | undefined) => pickSwatch(color, isDark
                   v-for="p in PALETTE"
                   :key="p.id"
                   type="button"
-                  class="aspect-square rounded-md cursor-pointer transition"
+                  class="aspect-square rounded-md cursor-pointer transition relative flex items-center justify-center"
                   :style="{
                     background: swatchFor(p.id).dot,
                     outline: a.color === p.id ? '2px solid currentColor' : '2px solid transparent'
                   }"
-                  :title="p.name"
+                  :title="colorTitle(p.name, p.id, a.id)"
                   @click="setColor(a, p.id); close()"
-                />
+                >
+                  <span
+                    v-if="colorUsage(p.id, a.id).length"
+                    class="size-1.5 rounded-full"
+                    :style="{ background: swatchFor(p.id).text }"
+                  />
+                </button>
               </div>
             </template>
           </UPopover>
