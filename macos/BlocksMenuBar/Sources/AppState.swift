@@ -84,6 +84,10 @@ final class AppState {
         return activities.first { $0.id == t.activityId }
     }
 
+    var currentLabel: String {
+        currentActivity?.name ?? timer?.name ?? "…"
+    }
+
     // MARK: - Tickers
 
     private func startTicker() {
@@ -167,13 +171,34 @@ final class AppState {
 
     // MARK: - Actions
 
-    struct StartBody: Encodable { let activityId: Int; let startedDate: String }
+    struct StartBody: Encodable {
+        let activityId: Int?
+        let name: String?
+        let startedDate: String
+    }
 
     func startTimer(activityId: Int) async {
         do {
             let _: EmptyResponse = try await BlocksAPI.shared.post(
                 "/api/timer/start",
-                body: StartBody(activityId: activityId, startedDate: Self.todayString())
+                body: StartBody(activityId: activityId, name: nil, startedDate: Self.todayString())
+            )
+            await refreshTimer()
+            await refreshEntries()
+        } catch APIError.unauthorized {
+            isSignedIn = false
+        } catch {
+            lastError = describe(error)
+        }
+    }
+
+    func startCustomTimer(name: String) async {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        do {
+            let _: EmptyResponse = try await BlocksAPI.shared.post(
+                "/api/timer/start",
+                body: StartBody(activityId: nil, name: trimmed, startedDate: Self.todayString())
             )
             await refreshTimer()
             await refreshEntries()
@@ -218,8 +243,7 @@ final class AppState {
         do {
             let result: CompleteResult = try await BlocksAPI.shared.post("/api/timer/complete")
             if let firstId = result.firstEntryId {
-                let name = activities.first { $0.id == timer?.activityId }?.name
-                Chime.notify(firstEntryId: firstId, completed: result.state == "completed", activityName: name)
+                Chime.notify(firstEntryId: firstId, completed: result.state == "completed", activityName: currentLabel)
             }
             await refreshTimer()
             await refreshEntries()
