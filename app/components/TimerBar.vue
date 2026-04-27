@@ -29,8 +29,11 @@ const activitiesById = computed(() => {
 
 const currentActivity = computed(() => {
   const t = timer.value
-  return t ? activitiesById.value.get(t.activityId) ?? null : null
+  if (!t || t.activityId == null) return null
+  return activitiesById.value.get(t.activityId) ?? null
 })
+
+const currentLabel = computed(() => currentActivity.value?.name ?? timer.value?.name ?? '…')
 
 const swatch = useSwatch(() => currentActivity.value?.color ?? 'slate')
 
@@ -254,7 +257,7 @@ async function handleSecondHalf() {
           :stroke-dashoffset="RING_CIRC * (1 - progress)"
         />
       </svg>
-      <span class="truncate max-w-24 sm:max-w-32">{{ currentActivity?.name ?? '…' }}</span>
+      <span class="truncate max-w-24 sm:max-w-32">{{ currentLabel }}</span>
       <span class="tabular-nums opacity-85">{{ remainingLabel }}</span>
       <button
         type="button"
@@ -291,7 +294,7 @@ async function handleSecondHalf() {
         :color="currentActivity?.color ?? 'slate'"
         :size="10"
       />
-      <span class="truncate max-w-24 sm:max-w-28">{{ currentActivity?.name ?? '…' }}</span>
+      <span class="truncate max-w-24 sm:max-w-28">{{ currentLabel }}</span>
       <UButton
         size="xs"
         color="primary"
