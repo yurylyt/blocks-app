@@ -76,7 +76,7 @@ async function addCustom() {
     <template #content>
       <div class="w-56 p-1">
         <template v-if="mode === 'list'">
-          <ul class="max-h-60 overflow-auto">
+          <ul>
             <li v-for="a in active" :key="a.id">
               <button
                 type="button"
