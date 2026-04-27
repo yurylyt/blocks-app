@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
       const [entry] = await db.insert(schema.entries).values({
         userId,
         activityId: row.activityId,
-        name: null,
+        name: row.name,
         date: row.startedDate,
         blocks: 0.5,
         position

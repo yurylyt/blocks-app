@@ -13,6 +13,7 @@ export default defineEventHandler(async (event) => {
     timer: row
       ? {
           activityId: row.activityId,
+          name: row.name,
           startedAt: row.startedAt,
           startedDate: row.startedDate,
           half: row.half,
