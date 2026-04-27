@@ -4,6 +4,7 @@ declare module '#auth-utils' {
     email: string
     name: string
     avatarUrl: string | null
+    chimeSound: string
   }
 
   interface UserSession {

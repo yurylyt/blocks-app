@@ -36,6 +36,20 @@
       "when": 1777280789952,
       "tag": "0004_glamorous_princess_powerful",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1777283142617,
+      "tag": "0005_open_synch",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1777284014328,
+      "tag": "0006_material_spitfire",
+      "breakpoints": true
     }
   ]
 }

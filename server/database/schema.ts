@@ -6,6 +6,7 @@ export const users = pgTable('users', {
   email: text('email').notNull(),
   name: text('name').notNull(),
   avatarUrl: text('avatar_url'),
+  chimeSound: text('chime_sound').notNull().default('chime-1'),
   createdAt: timestamp('created_at').notNull().defaultNow()
 }, t => [
   uniqueIndex('users_google_id_unique').on(t.googleId)
@@ -35,6 +36,19 @@ export const entries = pgTable('entries', {
   index('entries_user_date_idx').on(t.userId, t.date)
 ])
 
+export const runningTimers = pgTable('running_timers', {
+  id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  activityId: integer('activity_id').notNull().references(() => activities.id, { onDelete: 'cascade' }),
+  startedAt: timestamp('started_at', { withTimezone: true }).notNull().defaultNow(),
+  startedDate: text('started_date').notNull(),
+  half: integer('half').notNull().default(1),
+  firstEntryId: integer('first_entry_id').references(() => entries.id, { onDelete: 'set null' })
+}, t => [
+  uniqueIndex('running_timers_user_unique').on(t.userId)
+])
+
 export type User = typeof users.$inferSelect
 export type Activity = typeof activities.$inferSelect
 export type Entry = typeof entries.$inferSelect
+export type RunningTimer = typeof runningTimers.$inferSelect

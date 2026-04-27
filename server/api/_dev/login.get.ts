@@ -20,7 +20,13 @@ export default defineEventHandler(async (event) => {
   }
 
   await setUserSession(event, {
-    user: { id: user.id, email: user.email, name: user.name, avatarUrl: user.avatarUrl },
+    user: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      avatarUrl: user.avatarUrl,
+      chimeSound: user.chimeSound
+    },
     loggedInAt: Date.now()
   })
   return sendRedirect(event, String(q.redirect || '/'))

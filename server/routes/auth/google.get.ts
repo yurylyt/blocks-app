@@ -11,8 +11,10 @@ export default defineOAuthGoogleEventHandler({
     const [existing] = await db.select().from(schema.users).where(eq(schema.users.googleId, user.sub))
 
     let userId: number
+    let chimeSound: string
     if (existing) {
       userId = existing.id
+      chimeSound = existing.chimeSound
       await db.update(schema.users)
         .set({ email: user.email, name: user.name, avatarUrl: user.picture ?? null })
         .where(eq(schema.users.id, userId))
@@ -22,8 +24,9 @@ export default defineOAuthGoogleEventHandler({
         email: user.email,
         name: user.name,
         avatarUrl: user.picture ?? null
-      }).returning({ id: schema.users.id })
+      }).returning({ id: schema.users.id, chimeSound: schema.users.chimeSound })
       userId = inserted!.id
+      chimeSound = inserted!.chimeSound
       await seedDefaultActivities(userId)
     }
 
@@ -32,7 +35,8 @@ export default defineOAuthGoogleEventHandler({
         id: userId,
         email: user.email,
         name: user.name,
-        avatarUrl: user.picture ?? null
+        avatarUrl: user.picture ?? null,
+        chimeSound
       },
       loggedInAt: Date.now()
     })

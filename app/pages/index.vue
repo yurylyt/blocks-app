@@ -42,6 +42,11 @@ const { data: allActivities, refresh: refreshActivities } = await useAsyncData<A
   () => $fetch('/api/activities', { query: { includeArchived: '1' } }),
   { default: () => [], server: false }
 )
+
+const nuxt = useNuxtApp()
+nuxt.hook('blocks:entries-changed', () => {
+  void refreshEntries()
+})
 const activities = computed(() => allActivities.value.filter(a => !a.archivedAt))
 
 const activitiesById = computed(() => {
@@ -132,9 +137,28 @@ const WEEKDAY_HEADERS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
   <UContainer class="py-6 max-w-full">
     <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-2">
-        <UButton icon="i-lucide-chevron-left" color="neutral" variant="ghost" size="sm" @click="prev" />
-        <UButton size="sm" color="neutral" variant="outline" @click="goToday">Today</UButton>
-        <UButton icon="i-lucide-chevron-right" color="neutral" variant="ghost" size="sm" @click="next" />
+        <UButton
+          icon="i-lucide-chevron-left"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+          @click="prev"
+        />
+        <UButton
+          size="sm"
+          color="neutral"
+          variant="outline"
+          @click="goToday"
+        >
+          Today
+        </UButton>
+        <UButton
+          icon="i-lucide-chevron-right"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+          @click="next"
+        />
         <div class="ml-2 text-sm font-medium">
           <span class="md:hidden">{{ formatDayFull(cursor) }}</span>
           <span class="hidden md:inline">{{ desktopRangeLabel }}</span>
@@ -144,7 +168,10 @@ const WEEKDAY_HEADERS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
         <div class="text-sm text-muted md:hidden">
           Total: <span class="font-semibold text-default tabular-nums">{{ dayTotalLabel }}</span>
         </div>
-        <div v-if="view === 'day'" class="hidden text-sm text-muted md:block">
+        <div
+          v-if="view === 'day'"
+          class="hidden text-sm text-muted md:block"
+        >
           Total: <span class="font-semibold text-default tabular-nums">{{ dayTotalLabel }}</span>
         </div>
         <USelect
@@ -214,9 +241,15 @@ const WEEKDAY_HEADERS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
         />
       </div>
 
-      <div v-else-if="view === 'month'" class="flex flex-col gap-1">
+      <div
+        v-else-if="view === 'month'"
+        class="flex flex-col gap-1"
+      >
         <div class="grid grid-cols-7 gap-1 text-center text-xs font-medium uppercase text-muted">
-          <span v-for="h in WEEKDAY_HEADERS" :key="h">{{ h }}</span>
+          <span
+            v-for="h in WEEKDAY_HEADERS"
+            :key="h"
+          >{{ h }}</span>
         </div>
         <div class="grid grid-cols-7 gap-1">
           <MonthDayTile

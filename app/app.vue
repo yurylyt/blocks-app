@@ -20,18 +20,47 @@ async function logout() {
   <UApp>
     <UHeader :ui="{ container: 'w-full' }">
       <template #left>
-        <NuxtLink to="/" class="flex items-center gap-2 font-semibold">
-          <UIcon name="i-lucide-blocks" class="size-5 text-primary" />
+        <NuxtLink
+          to="/"
+          class="flex items-center gap-2 font-semibold"
+        >
+          <UIcon
+            name="i-lucide-blocks"
+            class="size-5 text-primary"
+          />
           Blocks
         </NuxtLink>
       </template>
 
+      <TimerBar v-if="loggedIn" />
+
       <template #right>
         <template v-if="loggedIn">
           <div class="hidden sm:flex items-center gap-1">
-            <UButton to="/" variant="ghost" color="neutral" size="sm">Week</UButton>
-            <UButton to="/stats" variant="ghost" color="neutral" size="sm">Stats</UButton>
-            <UButton to="/activities" variant="ghost" color="neutral" size="sm">Activities</UButton>
+            <UButton
+              to="/"
+              variant="ghost"
+              color="neutral"
+              size="sm"
+            >
+              Week
+            </UButton>
+            <UButton
+              to="/stats"
+              variant="ghost"
+              color="neutral"
+              size="sm"
+            >
+              Stats
+            </UButton>
+            <UButton
+              to="/activities"
+              variant="ghost"
+              color="neutral"
+              size="sm"
+            >
+              Activities
+            </UButton>
           </div>
           <UDropdownMenu
             :items="[
@@ -51,10 +80,34 @@ async function logout() {
       </template>
 
       <template #body>
-        <div v-if="loggedIn" class="flex flex-col gap-1 p-4">
-          <UButton to="/" variant="ghost" color="neutral" block>Week</UButton>
-          <UButton to="/stats" variant="ghost" color="neutral" block>Stats</UButton>
-          <UButton to="/activities" variant="ghost" color="neutral" block>Activities</UButton>
+        <div
+          v-if="loggedIn"
+          class="flex flex-col gap-1 p-4"
+        >
+          <UButton
+            to="/"
+            variant="ghost"
+            color="neutral"
+            block
+          >
+            Week
+          </UButton>
+          <UButton
+            to="/stats"
+            variant="ghost"
+            color="neutral"
+            block
+          >
+            Stats
+          </UButton>
+          <UButton
+            to="/activities"
+            variant="ghost"
+            color="neutral"
+            block
+          >
+            Activities
+          </UButton>
         </div>
       </template>
     </UHeader>
