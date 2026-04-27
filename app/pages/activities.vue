@@ -70,6 +70,8 @@ function toInputColor(color: string) {
 function fromInputColor(color: string) {
   return color + '52'
 }
+
+const usedColors = computed(() => new Set(active.value.map(a => a.color)))
 </script>
 
 <template>
@@ -94,11 +96,15 @@ function fromInputColor(color: string) {
                 v-for="c in PALETTE"
                 :key="c"
                 type="button"
-                class="size-7 rounded-full border-2 transition hover:scale-110"
+                class="relative size-7 rounded-full border-2 transition hover:scale-110"
                 :class="newColor === c ? 'border-foreground scale-110' : 'border-transparent'"
                 :style="{ background: c }"
                 @click="newColor = c"
-              />
+              >
+                <span v-if="usedColors.has(c)" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <span class="size-1.5 rounded-full bg-white/60" />
+                </span>
+              </button>
               <label
                 class="relative size-7 rounded-full border-2 transition cursor-pointer flex items-center justify-center overflow-hidden hover:scale-110"
                 :class="!PALETTE.includes(newColor) ? 'border-foreground scale-110' : 'border-dashed border-muted'"
@@ -129,45 +135,62 @@ function fromInputColor(color: string) {
     <h2 class="text-sm font-medium text-muted mb-2">Active ({{ active.length }})</h2>
     <ul class="divide-y divide-default rounded-lg border border-default mb-8">
       <li v-if="active.length === 0" class="p-4 text-sm text-muted">No active activities.</li>
-      <li v-for="a in active" :key="a.id" class="p-3 flex items-center gap-3">
-        <span class="size-4 rounded-full shrink-0" :style="{ background: a.color }" />
-        <span class="flex-1 font-medium">{{ a.name }}</span>
-        <UDropdownMenu
-          :items="[
-            [{ label: 'Rename', icon: 'i-lucide-pencil', onSelect: () => rename(a) }],
-            [
-              ...PALETTE.map(c => ({ slot: 'color' as const, hex: c, checked: a.color === c, onSelect: () => setColor(a, c) })),
-              { slot: 'customColor' as const }
-            ],
-            [{ label: 'Archive', icon: 'i-lucide-archive', color: 'error' as const, onSelect: () => archive(a) }]
-          ]"
-        >
-          <UButton icon="i-lucide-more-horizontal" size="sm" color="neutral" variant="ghost" />
-          <template #color="{ item }">
-            <span
-              class="size-4 rounded-full border-2 shrink-0"
-              :class="item.checked ? 'border-foreground' : 'border-transparent'"
-              :style="{ background: item.hex }"
-            />
-          </template>
-          <template #customColor>
-            <label class="flex items-center gap-2 w-full cursor-pointer">
-              <span
-                class="size-4 rounded-full border-2 shrink-0 flex items-center justify-center overflow-hidden relative"
-                :class="!PALETTE.includes(a.color) ? 'border-foreground' : 'border-dashed border-muted'"
-                :style="!PALETTE.includes(a.color) ? { background: a.color } : {}"
+      <li v-for="a in active" :key="a.id" class="group relative p-3 flex items-center gap-3">
+        <UPopover>
+          <button
+            type="button"
+            class="size-5 rounded-full shrink-0 transition hover:scale-110 cursor-pointer"
+            :style="{ background: a.color }"
+          />
+          <template #content>
+            <div class="p-2 flex flex-wrap gap-1 w-44">
+              <button
+                v-for="c in PALETTE"
+                :key="c"
+                type="button"
+                class="relative size-7 rounded-full border-2 transition hover:scale-110"
+                :class="a.color === c ? 'border-foreground scale-110' : 'border-transparent'"
+                :style="{ background: c }"
+                @click="setColor(a, c)"
               >
+                <span v-if="usedColors.has(c) && c !== a.color" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <span class="size-1.5 rounded-full bg-white/60" />
+                </span>
+              </button>
+              <label
+                class="relative size-7 rounded-full border-2 transition cursor-pointer flex items-center justify-center overflow-hidden hover:scale-110"
+                :class="!PALETTE.includes(a.color) ? 'border-foreground scale-110' : 'border-dashed border-muted'"
+                :style="!PALETTE.includes(a.color) ? { background: a.color } : {}"
+                title="Custom color"
+              >
+                <UIcon v-if="PALETTE.includes(a.color)" name="i-lucide-pipette" class="size-3 text-muted pointer-events-none" />
                 <input
                   type="color"
                   class="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
                   :value="toInputColor(a.color)"
                   @change="setColor(a, fromInputColor(($event.target as HTMLInputElement).value))"
                 />
-              </span>
-              <span class="text-sm">Custom…</span>
-            </label>
+              </label>
+            </div>
           </template>
-        </UDropdownMenu>
+        </UPopover>
+
+        <span class="flex-1 font-medium flex items-center gap-1.5 min-w-0">
+          <span class="truncate">{{ a.name }}</span>
+          <button
+            class="opacity-0 group-hover:opacity-100 shrink-0 transition-opacity text-muted hover:text-foreground cursor-pointer"
+            @click="rename(a)"
+          >
+            <UIcon name="i-lucide-pencil" class="size-3.5" />
+          </button>
+        </span>
+
+        <button
+          class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-muted hover:text-error cursor-pointer"
+          @click="archive(a)"
+        >
+          <UIcon name="i-lucide-archive" class="size-3.5" />
+        </button>
       </li>
     </ul>
 
