@@ -7,6 +7,17 @@ const toast = useToast()
 
 const open = ref(false)
 const busy = ref(false)
+const dropdownMode = ref<'list' | 'custom'>('list')
+const customName = ref('')
+
+watch(open, (v) => {
+  if (!v) {
+    dropdownMode.value = 'list'
+    customName.value = ''
+  } else {
+    dropdownMode.value = 'list'
+  }
+})
 
 const activeActivities = computed(() => activities.value.filter(a => !a.archivedAt))
 
@@ -61,7 +72,22 @@ async function handleStart(a: Activity) {
   if (busy.value) return
   busy.value = true
   try {
-    await start(a.id)
+    await start({ activityId: a.id })
+    open.value = false
+  } catch (e) {
+    const msg = (e as { data?: { message?: string } })?.data?.message
+    toast.add({ title: 'Failed to start', description: msg, color: 'error' })
+  } finally {
+    busy.value = false
+  }
+}
+
+async function handleStartCustom() {
+  const name = customName.value.trim()
+  if (!name || busy.value) return
+  busy.value = true
+  try {
+    await start({ name })
     open.value = false
   } catch (e) {
     const msg = (e as { data?: { message?: string } })?.data?.message
@@ -123,31 +149,76 @@ async function handleSecondHalf() {
 
       <template #content>
         <div class="w-56 p-1">
-          <ul>
-            <li
-              v-for="a in activeActivities"
-              :key="a.id"
-            >
-              <button
-                type="button"
-                class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-elevated cursor-pointer disabled:opacity-50"
-                :disabled="busy"
-                @click="handleStart(a)"
+          <template v-if="dropdownMode === 'list'">
+            <ul>
+              <li
+                v-for="a in activeActivities"
+                :key="a.id"
               >
-                <ActivitySwatch
-                  :color="a.color"
-                  :size="10"
-                />
-                <span class="truncate">{{ a.name }}</span>
-              </button>
-            </li>
-            <li
-              v-if="activeActivities.length === 0"
-              class="px-2 py-3 text-center text-xs text-muted"
+                <button
+                  type="button"
+                  class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-elevated cursor-pointer disabled:opacity-50"
+                  :disabled="busy"
+                  @click="handleStart(a)"
+                >
+                  <ActivitySwatch
+                    :color="a.color"
+                    :size="10"
+                  />
+                  <span class="truncate">{{ a.name }}</span>
+                </button>
+              </li>
+              <li
+                v-if="activeActivities.length === 0"
+                class="px-2 py-3 text-center text-xs text-muted"
+              >
+                No activities yet.
+              </li>
+            </ul>
+            <div class="my-1 border-t border-default" />
+            <button
+              type="button"
+              class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-elevated cursor-pointer"
+              @click="dropdownMode = 'custom'"
             >
-              No activities yet.
-            </li>
-          </ul>
+              <UIcon
+                name="i-lucide-plus"
+                class="size-3.5 text-primary"
+              />
+              <span>Custom…</span>
+            </button>
+          </template>
+
+          <template v-else>
+            <form
+              class="flex items-center gap-1 p-1"
+              @submit.prevent="handleStartCustom"
+            >
+              <UInput
+                v-model="customName"
+                placeholder="One-off block"
+                :disabled="busy"
+                autofocus
+                size="sm"
+                class="flex-1"
+              />
+              <UButton
+                type="submit"
+                icon="i-lucide-check"
+                size="sm"
+                :disabled="!customName.trim() || busy"
+                :loading="busy"
+              />
+              <UButton
+                type="button"
+                icon="i-lucide-x"
+                size="sm"
+                color="neutral"
+                variant="ghost"
+                @click="dropdownMode = 'list'"
+              />
+            </form>
+          </template>
         </div>
       </template>
     </UPopover>
