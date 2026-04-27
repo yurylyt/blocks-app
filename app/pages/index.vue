@@ -140,9 +140,18 @@ const WEEKDAY_HEADERS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
         <UButton
           icon="i-lucide-chevron-left"
           color="neutral"
-          variant="ghost"
+          variant="outline"
           size="sm"
+          square
           @click="prev"
+        />
+        <UButton
+          icon="i-lucide-chevron-right"
+          color="neutral"
+          variant="outline"
+          size="sm"
+          square
+          @click="next"
         />
         <UButton
           size="sm"
@@ -152,14 +161,7 @@ const WEEKDAY_HEADERS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
         >
           Today
         </UButton>
-        <UButton
-          icon="i-lucide-chevron-right"
-          color="neutral"
-          variant="ghost"
-          size="sm"
-          @click="next"
-        />
-        <div class="ml-2 text-sm font-medium">
+        <div class="ml-2 text-[13px] font-medium">
           <span class="md:hidden">{{ formatDayFull(cursor) }}</span>
           <span class="hidden md:inline">{{ desktopRangeLabel }}</span>
         </div>

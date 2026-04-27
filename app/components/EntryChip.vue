@@ -6,6 +6,7 @@ const props = defineProps<{
   entry: Entry
   activity: Activity | undefined
   activities: Activity[]
+  halfPosition?: 'top' | 'bottom'
 }>()
 
 const emit = defineEmits<{
@@ -15,8 +16,16 @@ const emit = defineEmits<{
 }>()
 
 const name = computed(() => props.activity?.name ?? props.entry.name ?? 'Unknown')
-const color = computed(() => props.activity?.color ?? '#64748b52')
 const isHalf = computed(() => props.entry.blocks === 0.5)
+const swatch = useSwatch(() => props.activity?.color ?? 'slate')
+
+const cardStyle = computed(() => ({
+  background: swatch.value.surface,
+  color: 'var(--text-primary)',
+  border: '1px solid var(--border-strong)',
+  borderLeft: `5px solid ${swatch.value.border}`,
+  paddingLeft: isHalf.value ? '9px' : '11px'
+}))
 
 const rootEl = ref<HTMLElement | null>(null)
 const nameEl = ref<HTMLElement | null>(null)
@@ -47,12 +56,48 @@ function onToggleClick() {
 <template>
   <div
     ref="rootEl"
-    class="group flex items-center gap-2 rounded-md border border-default px-2 text-sm"
-    :class="isHalf ? 'min-h-8 py-1' : 'min-h-16 py-2'"
-    :style="{ background: color }"
+    class="group relative flex items-center gap-2 rounded-lg text-[13px] font-medium"
+    :class="isHalf ? 'min-h-7 py-[5px] pr-[10px]' : 'min-h-10 py-[10px] pr-3'"
+    :style="cardStyle"
   >
-    <span class="drag-handle cursor-grab text-muted shrink-0">
-      <UIcon name="i-lucide-grip-vertical" class="size-3.5" />
+    <span class="drag-handle cursor-grab shrink-0 inline-flex items-center text-dimmed">
+      <svg
+        width="8"
+        height="14"
+        viewBox="0 0 8 14"
+        fill="currentColor"
+      >
+        <circle
+          cx="2"
+          cy="2"
+          r="1"
+        />
+        <circle
+          cx="6"
+          cy="2"
+          r="1"
+        />
+        <circle
+          cx="2"
+          cy="7"
+          r="1"
+        />
+        <circle
+          cx="6"
+          cy="7"
+          r="1"
+        />
+        <circle
+          cx="2"
+          cy="12"
+          r="1"
+        />
+        <circle
+          cx="6"
+          cy="12"
+          r="1"
+        />
+      </svg>
     </span>
     <button
       ref="nameEl"
@@ -61,12 +106,11 @@ function onToggleClick() {
       :title="isHalf ? 'Switch to full block' : 'Switch to half block'"
       @click="onToggleClick"
     >
-      <span
-        class="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded px-1.5 text-xs font-semibold"
-        :class="isHalf ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400' : 'bg-primary/15 text-primary'"
-      >
-        {{ isHalf ? '½' : '1' }}
-      </span>
+      <CountGlyph
+        :half="isHalf"
+        :half-position="halfPosition ?? 'bottom'"
+        :color="swatch.border"
+      />
       <span class="truncate">{{ name }}</span>
     </button>
     <EditEntryMenu
@@ -80,12 +124,15 @@ function onToggleClick() {
       type="button"
       :class="[
         revealed ? 'inline-block' : 'hidden group-hover:inline-block',
-        'text-muted hover:text-error cursor-pointer'
+        'text-muted hover:text-error cursor-pointer shrink-0'
       ]"
       title="Delete"
       @click="emit('remove', entry)"
     >
-      <UIcon name="i-lucide-x" class="size-3.5" />
+      <UIcon
+        name="i-lucide-x"
+        class="size-3.5"
+      />
     </button>
   </div>
 </template>

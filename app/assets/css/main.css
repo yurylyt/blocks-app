@@ -1,6 +1,14 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
+@layer base {
+  html,
+  body {
+    background: var(--bg-app);
+    color: var(--text-primary);
+  }
+}
+
 @theme static {
   --font-sans: 'Public Sans', sans-serif;
 
@@ -15,4 +23,89 @@
   --color-green-800: #016538;
   --color-green-900: #0A5331;
   --color-green-950: #052E16;
+}
+
+/* Design tokens.
+ * Light mode mirrors the existing Nuxt UI light surfaces (white-ish slate);
+ * dark mode is the exact OKLCH scale from the design handoff. */
+:root {
+  --bg-app:        oklch(0.99 0.005 250);
+  --bg-header:     oklch(0.995 0.003 250);
+  --bg-surface:    oklch(1 0 0);
+  --bg-card:       oklch(1 0 0);
+  --bg-input:      oklch(1 0 0);
+  --bg-control:    oklch(1 0 0);
+  --bg-hover:      oklch(0.97 0.005 250);
+  --bg-chip-empty: oklch(0.95 0.005 250);
+
+  --border-subtle: oklch(0.95 0.005 250);
+  --border-card:   oklch(0.93 0.005 250);
+  --border-input:  oklch(0.92 0.005 250);
+  --border-strong: oklch(0.9 0.005 250);
+
+  --bg-today:        oklch(0.985 0.012 155);
+  --border-today:    oklch(0.88 0.04 155);
+  --text-today:      oklch(0.4 0.15 155);
+  --bg-today-badge:  oklch(0.94 0.05 155);
+  --bg-brand-tint:   oklch(0.96 0.04 155);
+  --border-brand-tint: oklch(0.88 0.08 155);
+  --text-brand:      oklch(0.45 0.15 155);
+
+  --text-primary:  oklch(0.22 0.02 250);
+  --text-strong:   oklch(0.2 0.02 250);
+  --text-muted:    oklch(0.5 0.01 250);
+  --text-faint:    oklch(0.6 0.005 250);
+
+  --ring-track:    oklch(0.85 0.005 250 / 0.7);
+}
+
+.dark {
+  --bg-app:        oklch(0.18 0.01 250);
+  --bg-header:     oklch(0.2 0.01 250);
+  --bg-surface:    oklch(0.21 0.005 250);
+  --bg-card:       oklch(0.22 0.005 250);
+  --bg-input:      oklch(0.2 0.005 250);
+  --bg-control:    oklch(0.24 0.005 250);
+  --bg-hover:      oklch(0.28 0.005 250);
+  --bg-chip-empty: oklch(0.28 0.005 250);
+
+  --border-subtle: oklch(0.27 0.005 250);
+  --border-card:   oklch(0.28 0.005 250);
+  --border-input:  oklch(0.3 0.005 250);
+  --border-strong: oklch(0.32 0.005 250);
+
+  --bg-today:        oklch(0.23 0.012 155);
+  --border-today:    oklch(0.36 0.04 155);
+  --text-today:      oklch(0.85 0.12 155);
+  --bg-today-badge:  oklch(0.32 0.06 155);
+  --bg-brand-tint:   oklch(0.32 0.06 155);
+  --border-brand-tint: oklch(0.4 0.08 155);
+  --text-brand:      oklch(0.85 0.12 155);
+
+  --text-primary:  oklch(0.95 0.01 250);
+  --text-strong:   oklch(0.97 0.01 250);
+  --text-muted:    oklch(0.7 0.01 250);
+  --text-faint:    oklch(0.55 0.005 250);
+
+  --ring-track:    oklch(0.4 0.005 250 / 0.5);
+
+  /* Remap Nuxt UI semantic tokens onto the design surfaces (dark only).
+   * `bg-default`, `bg-elevated`, `border-default`, `text-muted`, etc. resolve
+   * to these throughout the app. Defined outside @layer to win the cascade
+   * over Nuxt UI's @layer theme defaults. */
+  --ui-bg:               var(--bg-app);
+  --ui-bg-muted:         var(--bg-input);
+  --ui-bg-elevated:      var(--bg-card);
+  --ui-bg-accented:      var(--bg-control);
+  --ui-bg-inverted:      oklch(0.97 0.01 250);
+
+  --ui-border:           var(--border-card);
+  --ui-border-muted:     var(--border-subtle);
+  --ui-border-accented:  var(--border-strong);
+
+  --ui-text:             var(--text-primary);
+  --ui-text-muted:       var(--text-muted);
+  --ui-text-toned:       oklch(0.8 0.01 250);
+  --ui-text-dimmed:      var(--text-faint);
+  --ui-text-highlighted: var(--text-strong);
 }

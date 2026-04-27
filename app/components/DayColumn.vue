@@ -43,44 +43,77 @@ const total = computed(() =>
 
 const totalLabel = computed(() => {
   const t = total.value
+  if (t === 0) return '0'
   return Number.isInteger(t) ? String(t) : t.toFixed(1)
+})
+
+// Walk back one step: if the immediate predecessor is also half, this one
+// goes 'bottom' so the two visually combine; otherwise 'top'.
+function halfPositionAt(idx: number): 'top' | 'bottom' {
+  const prev = sortedEntries.value[idx - 1]
+  if (!prev) return 'top'
+  return prev.blocks === 0.5 ? 'bottom' : 'top'
+}
+
+const columnStyle = computed(() => props.isToday
+  ? { background: 'var(--bg-today)', borderColor: 'var(--border-today)' }
+  : { background: 'var(--bg-surface)', borderColor: 'var(--border-card)' }
+)
+
+const headerColor = computed(() =>
+  props.isToday ? 'var(--text-today)' : 'var(--text-muted)'
+)
+
+const badgeStyle = computed(() => {
+  if (total.value === 0) {
+    return { background: 'var(--bg-chip-empty)', color: 'var(--text-faint)' }
+  }
+  if (props.isToday) {
+    return { background: 'var(--bg-today-badge)', color: 'var(--text-today)' }
+  }
+  return { background: 'var(--border-card)', color: 'var(--text-strong)' }
 })
 </script>
 
 <template>
   <div
-    class="flex flex-col rounded-lg border border-default bg-default"
-    :class="isToday ? 'ring-2 ring-primary/50' : ''"
+    class="flex flex-col rounded-[10px] border p-2 gap-1.5 min-h-[360px]"
+    :style="columnStyle"
   >
-    <div class="flex items-baseline justify-between gap-2 border-b border-default px-3 py-2">
-      <div class="flex items-baseline gap-2">
-        <span class="text-xs font-medium uppercase text-muted">{{ label }}</span>
-        <span class="text-sm font-semibold">{{ dom }}</span>
-      </div>
+    <div
+      class="flex items-center justify-between px-2 pt-1.5 pb-2 text-[11px] font-semibold tracking-[0.04em] uppercase"
+      :style="{ color: headerColor }"
+    >
+      <span>{{ label }} {{ dom }}</span>
       <span
-        class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums"
-        :class="total > 0 ? 'bg-primary/15 text-primary' : 'bg-elevated text-muted'"
+        class="inline-flex items-center justify-center rounded-full px-2 py-px text-[11px] font-semibold tabular-nums min-w-5"
+        :style="badgeStyle"
       >
         {{ totalLabel }}
       </span>
     </div>
 
-    <div ref="listEl" class="flex flex-col gap-1.5 p-2 min-h-24">
+    <div
+      ref="listEl"
+      class="flex flex-col gap-1.5"
+    >
       <EntryChip
-        v-for="e in sortedEntries"
+        v-for="(e, i) in sortedEntries"
         :key="e.id"
         :entry="e"
         :activity="e.activityId != null ? activitiesById.get(e.activityId) : undefined"
         :activities="activities"
+        :half-position="e.blocks === 0.5 ? halfPositionAt(i) : 'bottom'"
         @toggle="emit('toggle', $event)"
         @remove="emit('remove', $event)"
         @updated="emit('updated')"
       />
-      <AddEntryMenu
-        :date="date"
-        :activities="activities"
-        @created="emit('created')"
-      />
     </div>
+    <AddEntryMenu
+      :date="date"
+      :activities="activities"
+      class="mt-auto"
+      @created="emit('created')"
+    />
   </div>
 </template>

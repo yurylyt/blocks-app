@@ -1,0 +1,1 @@
+ALTER TABLE "activities" ALTER COLUMN "color" SET DEFAULT 'slate';

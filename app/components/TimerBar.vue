@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Activity } from '~~/server/database/schema'
 
-const { timer, mode, remainingMs, start, stop, secondHalf } = useTimer()
+const { timer, config, mode, elapsedMs, remainingMs, start, stop, secondHalf } = useTimer()
 const { data: activities } = useActivities()
 const toast = useToast()
 
@@ -21,6 +21,8 @@ const currentActivity = computed(() => {
   return t ? activitiesById.value.get(t.activityId) ?? null : null
 })
 
+const swatch = useSwatch(() => currentActivity.value?.color ?? 'slate')
+
 const remainingLabel = computed(() => {
   const ms = remainingMs.value
   const totalSec = Math.max(0, Math.ceil(ms / 1000))
@@ -28,6 +30,32 @@ const remainingLabel = computed(() => {
   const s = totalSec % 60
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 })
+
+const progress = computed(() => {
+  const total = config.value.halfDurationMs
+  if (!total) return 0
+  return Math.min(1, Math.max(0, elapsedMs.value / total))
+})
+
+const RING_R = 7
+const RING_CIRC = 2 * Math.PI * RING_R
+
+const pillStyle = computed(() => ({
+  background: swatch.value.bg,
+  color: swatch.value.text,
+  border: `1px solid ${swatch.value.border}`
+}))
+
+const stopBtnStyle = computed(() => ({
+  background: swatch.value.border,
+  color: 'var(--bg-app)'
+}))
+
+const startBtnStyle = {
+  background: 'var(--bg-brand-tint)',
+  color: 'var(--text-brand)',
+  border: '1px solid var(--border-brand-tint)'
+}
 
 async function handleStart(a: Activity) {
   if (busy.value) return
@@ -77,14 +105,21 @@ async function handleSecondHalf() {
       v-model:open="open"
       :content="{ align: 'center', sideOffset: 4 }"
     >
-      <UButton
-        icon="i-lucide-play"
-        size="sm"
-        color="primary"
-        variant="soft"
+      <button
+        type="button"
+        class="inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[13px] font-medium cursor-pointer transition-opacity hover:opacity-90"
+        :style="startBtnStyle"
       >
-        Start
-      </UButton>
+        <svg
+          width="10"
+          height="10"
+          viewBox="0 0 12 12"
+          fill="currentColor"
+        >
+          <path d="M3 2 L10 6 L3 10 Z" />
+        </svg>
+        <span>Start</span>
+      </button>
 
       <template #content>
         <div class="w-56 p-1">
@@ -99,9 +134,9 @@ async function handleSecondHalf() {
                 :disabled="busy"
                 @click="handleStart(a)"
               >
-                <span
-                  class="size-2.5 rounded-full shrink-0"
-                  :style="{ background: a.color }"
+                <ActivitySwatch
+                  :color="a.color"
+                  :size="10"
                 />
                 <span class="truncate">{{ a.name }}</span>
               </button>
@@ -119,35 +154,73 @@ async function handleSecondHalf() {
 
     <div
       v-else-if="mode === 'running'"
-      class="flex items-center gap-2 rounded-full border border-default bg-elevated/40 pl-2 pr-1 py-1"
+      class="inline-flex items-center gap-2 rounded-full pl-3 pr-[5px] py-1 text-[13px] font-medium"
+      :style="pillStyle"
     >
-      <span
-        class="size-2.5 rounded-full shrink-0"
-        :style="{ background: currentActivity?.color ?? '#64748b' }"
-      />
-      <span class="text-sm truncate max-w-20 sm:max-w-32">{{ currentActivity?.name ?? '…' }}</span>
-      <span class="text-sm font-mono tabular-nums text-muted">{{ remainingLabel }}</span>
-      <UButton
-        icon="i-lucide-square"
-        size="xs"
-        color="neutral"
-        variant="ghost"
-        :loading="busy"
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 16 16"
+        class="-rotate-90 shrink-0"
+      >
+        <circle
+          cx="8"
+          cy="8"
+          :r="RING_R"
+          fill="none"
+          stroke="var(--ring-track)"
+          stroke-width="1.6"
+        />
+        <circle
+          cx="8"
+          cy="8"
+          :r="RING_R"
+          fill="none"
+          :stroke="swatch.border"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          :stroke-dasharray="RING_CIRC"
+          :stroke-dashoffset="RING_CIRC * (1 - progress)"
+        />
+      </svg>
+      <span class="truncate max-w-24 sm:max-w-32">{{ currentActivity?.name ?? '…' }}</span>
+      <span class="tabular-nums opacity-85">{{ remainingLabel }}</span>
+      <button
+        type="button"
+        class="inline-flex items-center justify-center rounded-full size-[22px] cursor-pointer disabled:opacity-50 ml-0.5"
+        :style="stopBtnStyle"
         :disabled="busy"
+        title="Stop & save"
         aria-label="Stop"
         @click="handleStop"
-      />
+      >
+        <svg
+          width="9"
+          height="9"
+          viewBox="0 0 9 9"
+          fill="currentColor"
+        >
+          <rect
+            x="1"
+            y="1"
+            width="7"
+            height="7"
+            rx="1"
+          />
+        </svg>
+      </button>
     </div>
 
     <div
       v-else-if="mode === 'awaiting-choice'"
-      class="flex items-center gap-2 rounded-full border border-default bg-elevated/40 pl-2 pr-1 py-1"
+      class="inline-flex items-center gap-2 rounded-full pl-3 pr-1 py-1 text-[13px] font-medium"
+      :style="pillStyle"
     >
-      <span
-        class="size-2.5 rounded-full shrink-0"
-        :style="{ background: currentActivity?.color ?? '#64748b' }"
+      <ActivitySwatch
+        :color="currentActivity?.color ?? 'slate'"
+        :size="10"
       />
-      <span class="text-sm truncate max-w-20 sm:max-w-28">{{ currentActivity?.name ?? '…' }}</span>
+      <span class="truncate max-w-24 sm:max-w-28">{{ currentActivity?.name ?? '…' }}</span>
       <UButton
         size="xs"
         color="primary"

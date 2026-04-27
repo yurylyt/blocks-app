@@ -17,13 +17,15 @@ const emit = defineEmits<{
 const total = computed(() => props.entries.reduce((s, e) => s + e.blocks, 0))
 const totalLabel = computed(() => Number.isInteger(total.value) ? String(total.value) : total.value.toFixed(1))
 
+const isDark = useIsDark()
+
 const swatches = computed(() => {
   const seen = new Map<number, string>()
   for (const e of props.entries) {
     if (e.activityId == null) continue
     if (seen.has(e.activityId)) continue
     const a = props.activitiesById.get(e.activityId)
-    if (a?.color) seen.set(e.activityId, a.color)
+    if (a?.color) seen.set(e.activityId, pickSwatch(a.color, isDark.value).dot)
     if (seen.size >= 6) break
   }
   return Array.from(seen.values())
@@ -49,7 +51,10 @@ const swatches = computed(() => {
         {{ totalLabel }}
       </span>
     </div>
-    <div v-if="swatches.length" class="flex flex-wrap gap-0.5">
+    <div
+      v-if="swatches.length"
+      class="flex flex-wrap gap-0.5"
+    >
       <span
         v-for="(c, i) in swatches"
         :key="i"

@@ -8,12 +8,12 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  updated: []
+  'updated': []
   'open-change': [open: boolean]
 }>()
 
 const open = ref(false)
-watch(open, (v) => emit('open-change', v))
+watch(open, v => emit('open-change', v))
 const mode = ref<'list' | 'custom'>('list')
 const customName = ref('')
 const busy = ref(false)
@@ -75,7 +75,10 @@ async function saveCustom() {
 </script>
 
 <template>
-  <UPopover v-model:open="open" :content="{ align: 'end', sideOffset: 4 }">
+  <UPopover
+    v-model:open="open"
+    :content="{ align: 'end', sideOffset: 4 }"
+  >
     <button
       type="button"
       :class="[
@@ -85,21 +88,30 @@ async function saveCustom() {
       title="Edit"
       @click.stop
     >
-      <UIcon name="i-lucide-pencil" class="size-3.5" />
+      <UIcon
+        name="i-lucide-pencil"
+        class="size-3.5"
+      />
     </button>
 
     <template #content>
       <div class="w-56 p-1">
         <template v-if="mode === 'list'">
           <ul class="max-h-60 overflow-auto">
-            <li v-for="a in active" :key="a.id">
+            <li
+              v-for="a in active"
+              :key="a.id"
+            >
               <button
                 type="button"
                 class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-elevated cursor-pointer disabled:opacity-50"
                 :disabled="busy"
                 @click="pickActivity(a)"
               >
-                <span class="size-2.5 rounded-full shrink-0" :style="{ background: a.color }" />
+                <ActivitySwatch
+                  :color="a.color"
+                  :size="10"
+                />
                 <span class="truncate flex-1">{{ a.name }}</span>
                 <UIcon
                   v-if="entry.activityId === a.id"
@@ -108,7 +120,10 @@ async function saveCustom() {
                 />
               </button>
             </li>
-            <li v-if="active.length === 0" class="px-2 py-3 text-center text-xs text-muted">
+            <li
+              v-if="active.length === 0"
+              class="px-2 py-3 text-center text-xs text-muted"
+            >
               No activities yet.
             </li>
           </ul>
@@ -118,13 +133,19 @@ async function saveCustom() {
             class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-elevated cursor-pointer"
             @click="mode = 'custom'"
           >
-            <UIcon name="i-lucide-pencil" class="size-3.5 text-primary" />
+            <UIcon
+              name="i-lucide-pencil"
+              class="size-3.5 text-primary"
+            />
             <span>{{ entry.activityId == null ? 'Rename' : 'Custom…' }}</span>
           </button>
         </template>
 
         <template v-else>
-          <form class="flex items-center gap-1 p-1" @submit.prevent="saveCustom">
+          <form
+            class="flex items-center gap-1 p-1"
+            @submit.prevent="saveCustom"
+          >
             <UInput
               v-model="customName"
               placeholder="One-off block"

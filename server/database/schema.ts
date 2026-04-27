@@ -16,7 +16,7 @@ export const activities = pgTable('activities', {
   id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
   userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
-  color: text('color').notNull().default('#64748b52'),
+  color: text('color').notNull().default('slate'),
   archivedAt: timestamp('archived_at'),
   createdAt: timestamp('created_at').notNull().defaultNow()
 }, t => [

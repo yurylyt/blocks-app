@@ -39,3 +39,5 @@ macos/**/DerivedData/
 macos/**/*.xcuserdata/
 macos/**/xcuserdata/
 macos/**/*.xcodeproj/
+design_handoff_blocks_redesign/
+design_handoff_blocks_mac

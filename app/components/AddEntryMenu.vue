@@ -64,12 +64,15 @@ async function addCustom() {
 </script>
 
 <template>
-  <UPopover v-model:open="open" :content="{ align: 'center', sideOffset: 4 }">
+  <UPopover
+    v-model:open="open"
+    :content="{ align: 'center', sideOffset: 4 }"
+  >
     <button
       type="button"
-      class="flex w-full items-center justify-center gap-1 rounded-md border border-dashed border-default py-1.5 text-xs text-muted hover:text-primary hover:border-primary/50 transition cursor-pointer"
+      class="flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-default py-2 text-[12px] font-medium text-muted hover:text-primary hover:border-primary/50 transition cursor-pointer"
     >
-      <UIcon name="i-lucide-plus" class="size-3.5" />
+      <span aria-hidden="true">＋</span>
       Add
     </button>
 
@@ -77,18 +80,27 @@ async function addCustom() {
       <div class="w-56 p-1">
         <template v-if="mode === 'list'">
           <ul>
-            <li v-for="a in active" :key="a.id">
+            <li
+              v-for="a in active"
+              :key="a.id"
+            >
               <button
                 type="button"
                 class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-elevated cursor-pointer disabled:opacity-50"
                 :disabled="busy"
                 @click="addExisting(a)"
               >
-                <span class="size-2.5 rounded-full shrink-0" :style="{ background: a.color }" />
+                <ActivitySwatch
+                  :color="a.color"
+                  :size="10"
+                />
                 <span class="truncate">{{ a.name }}</span>
               </button>
             </li>
-            <li v-if="active.length === 0" class="px-2 py-3 text-center text-xs text-muted">
+            <li
+              v-if="active.length === 0"
+              class="px-2 py-3 text-center text-xs text-muted"
+            >
               No activities yet.
             </li>
           </ul>
@@ -98,13 +110,19 @@ async function addCustom() {
             class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-elevated cursor-pointer"
             @click="mode = 'custom'"
           >
-            <UIcon name="i-lucide-plus" class="size-3.5 text-primary" />
+            <UIcon
+              name="i-lucide-plus"
+              class="size-3.5 text-primary"
+            />
             <span>Custom…</span>
           </button>
         </template>
 
         <template v-else>
-          <form class="flex items-center gap-1 p-1" @submit.prevent="addCustom">
+          <form
+            class="flex items-center gap-1 p-1"
+            @submit.prevent="addCustom"
+          >
             <UInput
               v-model="customName"
               placeholder="One-off block"

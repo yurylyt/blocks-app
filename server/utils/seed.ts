@@ -1,11 +1,11 @@
 import { useDb, schema } from '../database/client'
 
 const DEFAULT_ACTIVITIES: Array<{ name: string, color: string }> = [
-  { name: 'Deep work', color: '#6366f1' },
-  { name: 'Reading', color: '#0ea5e9' },
-  { name: 'Writing', color: '#22c55e' },
-  { name: 'Exercise', color: '#f59e0b' },
-  { name: 'Meetings', color: '#ef4444' }
+  { name: 'Deep work', color: 'indigo' },
+  { name: 'Reading', color: 'sky' },
+  { name: 'Writing', color: 'emerald' },
+  { name: 'Exercise', color: 'amber' },
+  { name: 'Meetings', color: 'red' }
 ]
 
 export async function seedDefaultActivities(userId: number) {

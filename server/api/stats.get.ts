@@ -60,7 +60,7 @@ export default defineEventHandler(async (event): Promise<StatsResponse> => {
       ...byCustom.map(r => ({
         activityId: null,
         name: r.name?.trim() || 'Untitled',
-        color: '#64748b',
+        color: 'slate',
         blocks: Number(r.blocks ?? 0)
       }))
     ].sort((a, b) => b.blocks - a.blocks)

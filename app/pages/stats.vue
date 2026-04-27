@@ -92,21 +92,43 @@ function pct(v: number): string {
   if (!total) return '0%'
   return Math.round((v / total) * 100) + '%'
 }
+
+const isDark = useIsDark()
 </script>
 
 <template>
   <UContainer class="py-8 max-w-4xl">
     <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-      <h1 class="text-2xl font-semibold">Stats</h1>
+      <h1 class="text-2xl font-semibold">
+        Stats
+      </h1>
       <div class="flex items-center gap-2">
-        <UButton icon="i-lucide-chevron-left" color="neutral" variant="ghost" size="sm" @click="prev" />
-        <div class="min-w-40 text-center text-sm font-medium">{{ periodLabel }}</div>
-        <UButton icon="i-lucide-chevron-right" color="neutral" variant="ghost" size="sm" @click="next" />
+        <UButton
+          icon="i-lucide-chevron-left"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+          @click="prev"
+        />
+        <div class="min-w-40 text-center text-sm font-medium">
+          {{ periodLabel }}
+        </div>
+        <UButton
+          icon="i-lucide-chevron-right"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+          @click="next"
+        />
       </div>
     </div>
 
     <div class="mb-6 flex items-center gap-3">
-      <URadioGroup v-model="range" :items="rangeItems" orientation="horizontal" />
+      <URadioGroup
+        v-model="range"
+        :items="rangeItems"
+        orientation="horizontal"
+      />
       <div class="ml-auto text-sm text-muted">
         Total: <span class="font-semibold text-default tabular-nums">{{ fmtTotal(stats?.total ?? 0) }}</span> blocks
       </div>
@@ -121,7 +143,10 @@ function pct(v: number): string {
         <span class="font-medium">By activity</span>
       </template>
       <ul class="divide-y divide-default">
-        <li v-if="(stats?.byActivity.length ?? 0) === 0" class="py-4 text-sm text-muted text-center">
+        <li
+          v-if="(stats?.byActivity.length ?? 0) === 0"
+          class="py-4 text-sm text-muted text-center"
+        >
           No entries in this period.
         </li>
         <li
@@ -129,13 +154,19 @@ function pct(v: number): string {
           :key="a.activityId ?? `custom:${a.name}`"
           class="flex items-center gap-3 py-2"
         >
-          <span class="size-3 rounded-full shrink-0" :style="{ background: a.color }" />
+          <ActivitySwatch
+            :color="a.color"
+            :size="10"
+          />
           <span class="flex-1 font-medium truncate">{{ a.name }}</span>
           <div class="flex items-center gap-3 w-48">
             <div class="flex-1 h-2 rounded-full bg-elevated overflow-hidden">
               <div
                 class="h-full"
-                :style="{ background: a.color, width: (a.blocks / maxActivityBlocks * 100) + '%' }"
+                :style="{
+                  background: pickSwatch(a.color, isDark).border,
+                  width: (a.blocks / maxActivityBlocks * 100) + '%'
+                }"
               />
             </div>
             <div class="text-sm tabular-nums w-20 text-right">
