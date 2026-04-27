@@ -3,6 +3,8 @@ import AppKit
 
 struct PopoverContent: View {
     @Environment(AppState.self) private var state
+    @State private var customMode = false
+    @State private var customName = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -68,21 +70,73 @@ struct PopoverContent: View {
                 .padding(.horizontal, 10)
 
             let activeActivities = state.activities.filter { $0.archivedAt == nil }
-            if activeActivities.isEmpty {
-                Text("No activities yet. Create one in the web app.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 10)
+
+            if customMode {
+                HStack(spacing: 6) {
+                    TextField("One-off block", text: $customName)
+                        .textFieldStyle(.roundedBorder)
+                        .onSubmit { submitCustom() }
+                    Button {
+                        submitCustom()
+                    } label: {
+                        Image(systemName: "checkmark")
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(customName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    Button {
+                        customMode = false
+                        customName = ""
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    .buttonStyle(.bordered)
+                }
+                .padding(.horizontal, 10)
             } else {
-                VStack(alignment: .leading, spacing: 1) {
-                    ForEach(activeActivities) { activity in
-                        ActivityRow(activity: activity) {
-                            Task { await state.startTimer(activityId: activity.id) }
+                if activeActivities.isEmpty {
+                    Text("No activities yet. Create one in the web app.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 10)
+                } else {
+                    VStack(alignment: .leading, spacing: 1) {
+                        ForEach(activeActivities) { activity in
+                            ActivityRow(activity: activity) {
+                                Task { await state.startTimer(activityId: activity.id) }
+                            }
                         }
                     }
                 }
+
+                Divider().padding(.horizontal, 10)
+
+                Button {
+                    customMode = true
+                } label: {
+                    HStack(spacing: 10) {
+                        Image(systemName: "plus")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(Color.accentColor)
+                            .frame(width: 8, height: 8)
+                        Text("Custom…")
+                            .font(.system(size: 13, weight: .medium))
+                        Spacer()
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 7)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
             }
         }
+    }
+
+    private func submitCustom() {
+        let name = customName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty else { return }
+        Task { await state.startCustomTimer(name: name) }
+        customMode = false
+        customName = ""
     }
 
     // MARK: - Running
@@ -90,15 +144,11 @@ struct PopoverContent: View {
     private var runningView: some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack(spacing: 8) {
-                if let activity = state.currentActivity {
-                    Circle()
-                        .fill(Color(hex: activity.color))
-                        .frame(width: 10, height: 10)
-                    Text(activity.name)
-                        .font(.system(size: 14, weight: .semibold))
-                } else {
-                    Text("Running…").font(.system(size: 14, weight: .semibold))
-                }
+                Circle()
+                    .fill(Color(hex: state.currentActivity?.color ?? "#10b981"))
+                    .frame(width: 10, height: 10)
+                Text(state.currentLabel)
+                    .font(.system(size: 14, weight: .semibold))
                 Spacer()
             }
 
@@ -147,7 +197,7 @@ struct PopoverContent: View {
                         .foregroundStyle(.white)
                 }
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(state.currentActivity?.name ?? "Block complete")
+                    Text(state.currentLabel)
                         .font(.system(size: 14, weight: .semibold))
                     Text("\(formatTime(state.config.halfDurationMs)) · finished just now")
                         .font(.system(size: 12))
