@@ -34,11 +34,12 @@ async function logout() {
 
 <template>
   <UApp>
-    <UHeader :ui="{ container: 'w-full' }">
+    <UHeader :ui="{ container: 'w-full', center: 'flex flex-1 lg:flex-none' }">
       <template #left>
         <NuxtLink
           to="/"
-          class="flex items-center gap-2 font-semibold"
+          class="items-center gap-2 font-semibold"
+          :class="mode === 'running' ? 'hidden sm:flex' : 'flex'"
         >
           <UIcon
             name="i-lucide-blocks"

@@ -125,7 +125,7 @@ async function handleSecondHalf() {
         class="size-2.5 rounded-full shrink-0"
         :style="{ background: currentActivity?.color ?? '#64748b' }"
       />
-      <span class="text-sm truncate max-w-32">{{ currentActivity?.name ?? '…' }}</span>
+      <span class="text-sm truncate max-w-20 sm:max-w-32">{{ currentActivity?.name ?? '…' }}</span>
       <span class="text-sm font-mono tabular-nums text-muted">{{ remainingLabel }}</span>
       <UButton
         icon="i-lucide-square"
@@ -147,7 +147,7 @@ async function handleSecondHalf() {
         class="size-2.5 rounded-full shrink-0"
         :style="{ background: currentActivity?.color ?? '#64748b' }"
       />
-      <span class="text-sm truncate max-w-28">{{ currentActivity?.name ?? '…' }}</span>
+      <span class="text-sm truncate max-w-20 sm:max-w-28">{{ currentActivity?.name ?? '…' }}</span>
       <UButton
         size="xs"
         color="primary"
