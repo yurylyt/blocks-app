@@ -21,7 +21,10 @@ useHead({
   meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }],
   link: [
     { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
-    { rel: 'alternate icon', href: '/favicon.ico' }
+    { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
+    { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/icons/blocks-32.png' },
+    { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/icons/blocks-16.png' },
+    { rel: 'apple-touch-icon', href: '/icons/blocks-app-icon-180.png' }
   ],
   htmlAttrs: { lang: 'en' }
 })
