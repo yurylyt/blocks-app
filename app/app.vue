@@ -1,13 +1,29 @@
 <script setup lang="ts">
 const { loggedIn, user, clear } = useUserSession()
+const { timer, mode, remainingMs } = useTimer()
+const { data: activities } = useActivities()
+
+const activityById = computed(() => {
+  const m = new Map<number, { name: string }>()
+  for (const a of activities.value) m.set(a.id, a)
+  return m
+})
+
+const tabTitle = computed(() => {
+  if (mode.value !== 'running' || !timer.value) return 'Blocks'
+  const name = activityById.value.get(timer.value.activityId)?.name ?? 'Activity'
+  const minutes = Math.ceil(remainingMs.value / 60000)
+  return `${minutes} ${name} - Blocks`
+})
 
 useHead({
+  title: () => tabTitle.value,
   meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }],
   link: [{ rel: 'icon', href: '/favicon.ico' }],
   htmlAttrs: { lang: 'en' }
 })
 
-useSeoMeta({ title: 'Blocks', description: 'Track your academic blocks' })
+useSeoMeta({ description: 'Track your academic blocks' })
 
 async function logout() {
   await $fetch('/api/auth/logout', { method: 'POST' })
