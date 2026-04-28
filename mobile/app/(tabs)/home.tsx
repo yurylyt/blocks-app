@@ -1,26 +1,25 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { ActionSheetIOS, Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import PagerView, {
   type PageScrollStateChangedNativeEvent,
   type PagerViewOnPageSelectedEvent,
 } from 'react-native-pager-view';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
-import { signOut } from '~/api/auth';
 import type { Activity, Entry } from '~/api/types';
 import { AwaitingChoiceBar } from '~/components/AwaitingChoiceBar';
 import { HomeDayPage } from '~/components/HomeDayPage';
 import { RunningBar } from '~/components/RunningBar';
 import { RunningBarSheet } from '~/components/RunningBarSheet';
 import { useActivities } from '~/hooks/useActivities';
+import { useEntries } from '~/hooks/useEntries';
 import { useTimer } from '~/hooks/useTimer';
 import { useStartSecondHalf, useStopTimer } from '~/hooks/useTimerMutations';
 import { useToday } from '~/hooks/useToday';
 import { addDays } from '~/lib/dateRange';
 import { useTheme } from '~/theme/ThemeProvider';
-import { BRAND } from '~/theme/tokens';
 
 function dateTitle(date: string, today: string): string {
   if (date === today) return 'Today';
@@ -37,6 +36,7 @@ export default function HomeScreen() {
   const { tokens } = useTheme();
   const router = useRouter();
   const today = useToday();
+  const insets = useSafeAreaInsets();
 
   const [center, setCenter] = useState(today);
   const isAtToday = center === today;
@@ -69,6 +69,10 @@ export default function HomeScreen() {
   const runningActivity =
     timer?.activityId != null ? activitiesById.get(timer.activityId) ?? null : null;
   const isAwaitingChoice = timer != null && timer.half === 1 && timer.firstEntryId != null;
+
+  const centerRange = useMemo(() => ({ from: center, to: center }), [center]);
+  const centerEntriesQ = useEntries(centerRange);
+  const blocksSum = (centerEntriesQ.data ?? []).reduce((acc, e) => acc + e.blocks, 0);
 
   const stopMut = useStopTimer();
   const secondHalfMut = useStartSecondHalf();
@@ -122,22 +126,6 @@ export default function HomeScreen() {
     [router],
   );
 
-  function openMenu() {
-    if (Platform.OS === 'ios') {
-      ActionSheetIOS.showActionSheetWithOptions(
-        { options: ['Sign out', 'Cancel'], destructiveButtonIndex: 0, cancelButtonIndex: 1 },
-        (idx) => {
-          if (idx === 0) void signOut();
-        },
-      );
-    } else {
-      Alert.alert('Account', undefined, [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Sign out', style: 'destructive', onPress: () => void signOut() },
-      ]);
-    }
-  }
-
   const title = dateTitle(center, today);
 
   return (
@@ -179,21 +167,13 @@ export default function HomeScreen() {
           <ChevronRight size={28} color={tokens.text} strokeWidth={2} />
         </Pressable>
 
-        {!timer && (
-          <Pressable
-            onPress={() => router.push({ pathname: '/pickers/picker', params: { mode: 'start' } })}
-            style={({ pressed }) => [
-              styles.startBtn,
-              { backgroundColor: BRAND.accent, opacity: pressed ? 0.8 : 1 },
-            ]}
-          >
-            <Text style={styles.startBtnText}>Start</Text>
-          </Pressable>
-        )}
-
-        <Pressable onPress={openMenu} hitSlop={8} style={styles.menuBtn}>
-          <Text style={[styles.menuDots, { color: tokens.textSecondary }]}>⋯</Text>
-        </Pressable>
+        <View style={styles.countSlot}>
+          {blocksSum > 0 && (
+            <Text style={[styles.blockCount, { color: tokens.textSecondary }]}>
+              {blocksSum % 1 === 0 ? blocksSum : blocksSum.toFixed(1)}
+            </Text>
+          )}
+        </View>
       </View>
 
       <PagerView
@@ -271,17 +251,8 @@ const styles = StyleSheet.create({
   chev: { padding: 4 },
   titleWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   title: { fontSize: 22, fontWeight: '700', letterSpacing: 0.2 },
-  startBtn: {
-    paddingHorizontal: 16,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 4,
-  },
-  startBtnText: { color: '#FFFFFF', fontSize: 14, fontWeight: '600' },
-  menuBtn: { paddingHorizontal: 4 },
-  menuDots: { fontSize: 24, lineHeight: 24 },
+  countSlot: { width: 44, alignItems: 'flex-end', paddingRight: 4 },
+  blockCount: { fontSize: 17, fontWeight: '600' },
   pager: { flex: 1 },
   page: { flex: 1 },
 });
