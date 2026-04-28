@@ -116,23 +116,9 @@ struct PopoverContent: View {
 
                 Divider().padding(.horizontal, 10)
 
-                Button {
+                CustomRow {
                     customMode = true
-                } label: {
-                    HStack(spacing: 10) {
-                        Image(systemName: "plus")
-                            .font(.system(size: 11, weight: .semibold))
-                            .foregroundStyle(Color.accentColor)
-                            .frame(width: 8, height: 8)
-                        Text("Custom…")
-                            .font(.system(size: 13, weight: .medium))
-                        Spacer()
-                    }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 7)
-                    .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
             }
         }
     }
@@ -366,6 +352,37 @@ private struct ActivityRow: View {
                     .fill(Color(hex: activity.color))
                     .frame(width: 8, height: 8)
                 Text(activity.name)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(hovered ? Color.white : Color.primary)
+                Spacer()
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 7)
+            .background(
+                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                    .fill(hovered ? Color.accentColor : Color.clear)
+            )
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .onHover { hovered = $0 }
+    }
+}
+
+// MARK: - Custom row
+
+private struct CustomRow: View {
+    let action: () -> Void
+    @State private var hovered = false
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 10) {
+                Image(systemName: "plus")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(hovered ? Color.white : Color.accentColor)
+                    .frame(width: 8, height: 8)
+                Text("Custom…")
                     .font(.system(size: 13, weight: .medium))
                     .foregroundStyle(hovered ? Color.white : Color.primary)
                 Spacer()
