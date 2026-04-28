@@ -95,10 +95,12 @@ export default function HomeScreen() {
 
   const goBack = useCallback(() => {
     setCenter((prev) => addDays(prev, -1));
+    requestAnimationFrame(() => pagerRef.current?.setPageWithoutAnimation(1));
   }, []);
 
   const goForward = useCallback(() => {
     setCenter((prev) => (prev === today ? prev : addDays(prev, 1)));
+    requestAnimationFrame(() => pagerRef.current?.setPageWithoutAnimation(1));
   }, [today]);
 
   const onEdit = useCallback(
