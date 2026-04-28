@@ -6,12 +6,11 @@ import PagerView, {
   type PageScrollStateChangedNativeEvent,
   type PagerViewOnPageSelectedEvent,
 } from 'react-native-pager-view';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 
 import { signOut } from '~/api/auth';
 import type { Activity, Entry } from '~/api/types';
 import { AwaitingChoiceBar } from '~/components/AwaitingChoiceBar';
-import { FAB } from '~/components/FAB';
 import { HomeDayPage } from '~/components/HomeDayPage';
 import { RunningBar } from '~/components/RunningBar';
 import { RunningBarSheet } from '~/components/RunningBarSheet';
@@ -116,6 +115,13 @@ export default function HomeScreen() {
     [router],
   );
 
+  const onAddForDate = useCallback(
+    (date: string) => {
+      router.push({ pathname: '/pickers/picker', params: { mode: 'add', date } });
+    },
+    [router],
+  );
+
   function openMenu() {
     if (Platform.OS === 'ios') {
       ActionSheetIOS.showActionSheetWithOptions(
@@ -206,6 +212,7 @@ export default function HomeScreen() {
               isToday={d === today}
               activitiesById={activitiesById}
               onEdit={onEdit}
+              onAdd={() => onAddForDate(d)}
             />
           </View>
         ))}
@@ -234,22 +241,9 @@ export default function HomeScreen() {
           config={config}
           activity={runningActivity}
           onTap={() => setSheetOpen(true)}
+          onStop={() => stopMut.mutate()}
         />
       )}
-
-      <FAB
-        label="Add"
-        icon={
-          <Plus
-            size={Platform.OS === 'ios' ? 18 : 20}
-            color={Platform.OS === 'ios' ? '#FFFFFF' : '#0F4F2A'}
-            strokeWidth={2.5}
-          />
-        }
-        onPress={() =>
-          router.push({ pathname: '/pickers/picker', params: { mode: 'add', date: center } })
-        }
-      />
 
       {sheetOpen && timer && config && (
         <RunningBarSheet

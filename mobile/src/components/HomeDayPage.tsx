@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
+import { Plus } from 'lucide-react-native';
 
 import type { Activity, Entry } from '~/api/types';
 import { BlocksLogo } from '~/components/BlocksLogo';
@@ -8,19 +9,20 @@ import { SwipeableBlockRow } from '~/components/SwipeableBlockRow';
 import { useEntries } from '~/hooks/useEntries';
 import { useDeleteEntry } from '~/hooks/useEntryMutations';
 import { useTheme } from '~/theme/ThemeProvider';
+import { BRAND } from '~/theme/tokens';
 
 interface Props {
   date: string;
   isToday: boolean;
   activitiesById: Map<number, Activity>;
   onEdit: (entry: Entry) => void;
+  onAdd?: () => void;
 }
 
 const keyExtractor = (item: Entry) => String(item.id);
 const Separator = () => <View style={{ height: 8 }} />;
 
-export function HomeDayPage({ date, isToday, activitiesById, onEdit }: Props) {
-  const { tokens } = useTheme();
+export function HomeDayPage({ date, isToday, activitiesById, onEdit, onAdd }: Props) {
   const range = useMemo(() => ({ from: date, to: date }), [date]);
   const entriesQ = useEntries(range);
   const deleteMut = useDeleteEntry();
@@ -30,7 +32,7 @@ export function HomeDayPage({ date, isToday, activitiesById, onEdit }: Props) {
   const isEmpty = !isLoading && entries.length === 0;
 
   if (isEmpty) {
-    return <EmptyState isToday={isToday} />;
+    return <EmptyState isToday={isToday} onAdd={onAdd} />;
   }
 
   return (
@@ -46,6 +48,7 @@ export function HomeDayPage({ date, isToday, activitiesById, onEdit }: Props) {
         />
       )}
       ItemSeparatorComponent={Separator}
+      ListFooterComponent={onAdd ? <AddBlockButton onPress={onAdd} /> : null}
       contentContainerStyle={styles.listContent}
       refreshing={entriesQ.isFetching}
       onRefresh={() => {
@@ -55,7 +58,26 @@ export function HomeDayPage({ date, isToday, activitiesById, onEdit }: Props) {
   );
 }
 
-function EmptyState({ isToday }: { isToday: boolean }) {
+function AddBlockButton({ onPress }: { onPress: () => void }) {
+  const { tokens } = useTheme();
+  return (
+    <View style={styles.addWrap}>
+      <Pressable
+        onPress={onPress}
+        style={({ pressed }) => [
+          styles.addBtn,
+          { borderColor: tokens.separator, opacity: pressed ? 0.6 : 1 },
+        ]}
+        android_ripple={{ color: 'rgba(46,159,92,0.15)' }}
+      >
+        <Plus size={18} color={BRAND.accent} strokeWidth={2.5} />
+        <Text style={[styles.addLabel, { color: BRAND.accent }]}>Add block</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+function EmptyState({ isToday, onAdd }: { isToday: boolean; onAdd?: () => void }) {
   const { tokens } = useTheme();
   return (
     <View style={styles.empty}>
@@ -66,12 +88,29 @@ function EmptyState({ isToday }: { isToday: boolean }) {
       <Text style={[styles.emptySub, { color: tokens.textTertiary }]}>
         {isToday ? 'Start a block or add one to log today.' : 'No blocks logged this day.'}
       </Text>
+      {onAdd && (
+        <View style={{ alignSelf: 'stretch', marginTop: 8 }}>
+          <AddBlockButton onPress={onAdd} />
+        </View>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  listContent: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 140 },
+  listContent: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24 },
+  addWrap: { paddingTop: 8 },
+  addBtn: {
+    height: 56,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 8,
+  },
+  addLabel: { fontSize: 15, fontWeight: '600' },
   empty: {
     flex: 1,
     alignItems: 'center',
