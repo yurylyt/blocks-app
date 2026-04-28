@@ -20,7 +20,9 @@ const isHalf = computed(() => props.entry.blocks === 0.5)
 const swatch = useSwatch(() => props.activity?.color ?? 'slate')
 
 const cardStyle = computed(() => ({
-  background: swatch.value.surface,
+  background: isHalf.value
+    ? `repeating-linear-gradient(-45deg, ${swatch.value.surface} 0 8px, ${swatch.value.bg} 8px 16px)`
+    : swatch.value.surface,
   color: 'var(--text-primary)',
   border: '1px solid var(--border-strong)',
   borderLeft: `5px solid ${swatch.value.border}`,

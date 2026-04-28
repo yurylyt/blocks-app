@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 struct MenuBarLabel: View {
@@ -37,15 +38,35 @@ struct BlocksLogoIcon: View {
     var size: CGFloat = 16
 
     var body: some View {
-        Canvas { context, canvasSize in
-            let s = min(canvasSize.width, canvasSize.height) / 20.0
-            let top = Path(roundedRect: CGRect(x: 2 * s, y: 3 * s, width: 16 * s, height: 6 * s), cornerRadius: 1.5 * s)
-            let bottom = Path(roundedRect: CGRect(x: 2 * s, y: 11 * s, width: 16 * s, height: 6 * s), cornerRadius: 1.5 * s)
-            let half = Path(roundedRect: CGRect(x: 2 * s, y: 11 * s, width: 8 * s, height: 6 * s), cornerRadius: 1.5 * s)
-            context.fill(top, with: .style(.foreground))
-            context.stroke(bottom, with: .style(.foreground), lineWidth: 1.6 * s)
-            context.fill(half, with: .style(.foreground))
+        Image(nsImage: Self.templateImage(size: size))
+    }
+
+    private static func templateImage(size: CGFloat) -> NSImage {
+        let image = NSImage(size: NSSize(width: size, height: size), flipped: true) { _ in
+            let s = size / 20.0
+            NSColor.black.setFill()
+            NSColor.black.setStroke()
+
+            NSBezierPath(
+                roundedRect: NSRect(x: 2 * s, y: 3 * s, width: 16 * s, height: 6 * s),
+                xRadius: 1.5 * s, yRadius: 1.5 * s
+            ).fill()
+
+            let bottom = NSBezierPath(
+                roundedRect: NSRect(x: 2 * s, y: 11 * s, width: 16 * s, height: 6 * s),
+                xRadius: 1.5 * s, yRadius: 1.5 * s
+            )
+            bottom.lineWidth = 1.6 * s
+            bottom.stroke()
+
+            NSBezierPath(
+                roundedRect: NSRect(x: 2 * s, y: 11 * s, width: 8 * s, height: 6 * s),
+                xRadius: 1.5 * s, yRadius: 1.5 * s
+            ).fill()
+
+            return true
         }
-        .frame(width: size, height: size)
+        image.isTemplate = true
+        return image
     }
 }
