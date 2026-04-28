@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   chev: { padding: 4 },
-  titleWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  titleWrap: { flex: 1, alignItems: 'flex-start', justifyContent: 'center' },
   title: { fontSize: 22, fontWeight: '700', letterSpacing: 0.2 },
   countSlot: { width: 44, alignItems: 'flex-end', paddingRight: 4 },
   blockCount: { fontSize: 17, fontWeight: '600' },
