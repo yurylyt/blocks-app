@@ -57,7 +57,7 @@ function onToggleClick() {
   <div
     ref="rootEl"
     class="group relative flex items-center gap-2 rounded-lg text-[13px] font-medium"
-    :class="isHalf ? 'min-h-7 py-[5px] pr-[10px]' : 'min-h-10 py-[10px] pr-3'"
+    :class="isHalf ? 'min-h-7 py-[5px] pr-[10px]' : 'min-h-14 py-[14px] pr-3'"
     :style="cardStyle"
   >
     <span class="drag-handle cursor-grab shrink-0 inline-flex items-center text-dimmed">
