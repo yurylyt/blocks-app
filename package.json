@@ -11,7 +11,8 @@
     "typecheck": "nuxt typecheck",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "deploy": "./deploy.sh"
+    "deploy": "./deploy.sh",
+    "mac:install": "macos/BlocksMenuBar/install.sh"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.102",
