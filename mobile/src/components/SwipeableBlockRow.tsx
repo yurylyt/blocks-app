@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
+import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
 import ReanimatedSwipeable, {
   type SwipeableMethods,
@@ -12,7 +12,6 @@ import Animated, {
 
 import type { Activity, Entry } from '~/api/types';
 import { BlockRow } from './BlockRow';
-import { BRAND } from '~/theme/tokens';
 import { useTheme } from '~/theme/ThemeProvider';
 
 interface Props {
@@ -23,7 +22,6 @@ interface Props {
 }
 
 const ACTION_WIDTH = 64;
-const TOTAL_ACTIONS = ACTION_WIDTH * 2;
 
 export function SwipeableBlockRow({ entry, activity, onEdit, onDelete }: Props) {
   const ref = useRef<SwipeableMethods>(null);
@@ -31,11 +29,6 @@ export function SwipeableBlockRow({ entry, activity, onEdit, onDelete }: Props) 
 
   function close() {
     ref.current?.close();
-  }
-
-  function handleEdit() {
-    close();
-    onEdit(entry);
   }
 
   function handleDelete() {
@@ -67,12 +60,13 @@ export function SwipeableBlockRow({ entry, activity, onEdit, onDelete }: Props) 
         <RightActions
           drag={drag}
           danger={tokens.danger}
-          onEdit={handleEdit}
           onDelete={handleDelete}
         />
       )}
     >
-      <BlockRow entry={entry} activity={activity} />
+      <Pressable onPress={() => onEdit(entry)} android_ripple={{ color: tokens.surfaceMuted }}>
+        <BlockRow entry={entry} activity={activity} />
+      </Pressable>
     </ReanimatedSwipeable>
   );
 }
@@ -80,34 +74,22 @@ export function SwipeableBlockRow({ entry, activity, onEdit, onDelete }: Props) 
 function RightActions({
   drag,
   danger,
-  onEdit,
   onDelete,
 }: {
   drag: SharedValue<number>;
   danger: string;
-  onEdit: () => void;
   onDelete: () => void;
 }) {
-  const editStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        translateX: interpolate(drag.value, [-TOTAL_ACTIONS, 0], [0, TOTAL_ACTIONS], 'clamp'),
-      },
-    ],
-  }));
   const deleteStyle = useAnimatedStyle(() => ({
     transform: [
       {
-        translateX: interpolate(drag.value, [-TOTAL_ACTIONS, 0], [0, ACTION_WIDTH], 'clamp'),
+        translateX: interpolate(drag.value, [-ACTION_WIDTH, 0], [0, ACTION_WIDTH], 'clamp'),
       },
     ],
   }));
 
   return (
     <View style={styles.actionsRow}>
-      <Animated.View style={[styles.action, { backgroundColor: BRAND.editBlue }, editStyle]}>
-        <ActionButton label="Edit" onPress={onEdit} />
-      </Animated.View>
       <Animated.View style={[styles.action, { backgroundColor: danger }, deleteStyle]}>
         <ActionButton label="Delete" onPress={onDelete} />
       </Animated.View>
@@ -126,7 +108,7 @@ function ActionButton({ label, onPress }: { label: string; onPress: () => void }
 const styles = StyleSheet.create({
   actionsRow: {
     flexDirection: 'row',
-    width: TOTAL_ACTIONS,
+    width: ACTION_WIDTH,
   },
   action: {
     width: ACTION_WIDTH,

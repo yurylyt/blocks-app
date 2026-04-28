@@ -17,7 +17,7 @@ import type { Activity, Entry } from '~/api/types';
 import { useActivities } from '~/hooks/useActivities';
 import { useEntries } from '~/hooks/useEntries';
 import { useToday } from '~/hooks/useToday';
-import { usePatchEntry } from '~/hooks/useEntryMutations';
+import { useDeleteEntry, usePatchEntry } from '~/hooks/useEntryMutations';
 import { resolveSwatch } from '~/theme/swatch';
 import { useTheme } from '~/theme/ThemeProvider';
 
@@ -38,6 +38,7 @@ export default function EditPickerScreen() {
   const activitiesQ = useActivities();
   const activities = activitiesQ.data ?? [];
   const patchMut = usePatchEntry();
+  const deleteMut = useDeleteEntry();
 
   const [search, setSearch] = useState('');
   const [freeformMode, setFreeformMode] = useState(entry?.activityId == null && entry?.name != null);
@@ -50,6 +51,29 @@ export default function EditPickerScreen() {
 
   function close() {
     if (router.canGoBack()) router.back();
+  }
+
+  function handleDelete() {
+    if (deleteMut.isPending) return;
+    Alert.alert(
+      'Delete block?',
+      'This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            deleteMut.mutate(id, {
+              onSuccess: close,
+              onError: (err) =>
+                Alert.alert('Could not delete', err instanceof Error ? err.message : String(err)),
+            });
+          },
+        },
+      ],
+      { cancelable: true },
+    );
   }
 
   async function applyActivity(activity: Activity) {
@@ -98,7 +122,14 @@ export default function EditPickerScreen() {
             <Text style={[styles.headerAction, { color: tokens.accent }]}>Cancel</Text>
           </Pressable>
           <Text style={[styles.headerTitle, { color: tokens.text }]}>Edit block</Text>
-          <View style={{ width: 60 }} />
+          <Pressable
+            onPress={handleDelete}
+            disabled={deleteMut.isPending}
+            hitSlop={8}
+            style={({ pressed }) => ({ opacity: pressed || deleteMut.isPending ? 0.6 : 1 })}
+          >
+            <Text style={[styles.headerAction, { color: tokens.danger }]}>Delete</Text>
+          </Pressable>
         </View>
 
         <SegmentedHalfFull value={blocks} onChange={setBlocks} />

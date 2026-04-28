@@ -7,7 +7,6 @@ export const BRAND = {
   dangerIosDark: '#FF453A',
   dangerMd: '#B3261E',
   dangerMdDark: '#F2B8B5',
-  editBlue: '#3478F6',
 } as const;
 
 export interface Tokens {
