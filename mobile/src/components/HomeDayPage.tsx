@@ -17,12 +17,13 @@ interface Props {
   activitiesById: Map<number, Activity>;
   onEdit: (entry: Entry) => void;
   onAdd?: () => void;
+  onRefresh?: () => void;
 }
 
 const keyExtractor = (item: Entry) => String(item.id);
 const Separator = () => <View style={{ height: 8 }} />;
 
-export function HomeDayPage({ date, isToday, activitiesById, onEdit, onAdd }: Props) {
+export function HomeDayPage({ date, isToday, activitiesById, onEdit, onAdd, onRefresh }: Props) {
   const range = useMemo(() => ({ from: date, to: date }), [date]);
   const entriesQ = useEntries(range);
   const deleteMut = useDeleteEntry();
@@ -53,6 +54,7 @@ export function HomeDayPage({ date, isToday, activitiesById, onEdit, onAdd }: Pr
       refreshing={entriesQ.isFetching}
       onRefresh={() => {
         void entriesQ.refetch();
+        onRefresh?.();
       }}
     />
   );

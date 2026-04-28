@@ -193,6 +193,10 @@ export default function HomeScreen() {
               activitiesById={activitiesById}
               onEdit={onEdit}
               onAdd={() => onAddForDate(d)}
+              onRefresh={() => {
+                void timerQ.refetch();
+                void activitiesQ.refetch();
+              }}
             />
           </View>
         ))}
