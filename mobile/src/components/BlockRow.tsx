@@ -20,8 +20,8 @@ export function BlockRow({ entry, activity }: Props) {
 
   const isHalf = entry.blocks <= 0.5;
   const radius = Platform.OS === 'ios' ? 12 : 16;
-  const minHeight = isHalf ? 28 : 56;
-  const verticalPad = isHalf ? 5 : 14;
+  const minHeight = isHalf ? 42 : 84;
+  const verticalPad = isHalf ? 8 : 21;
 
   const displayName = activity?.name ?? entry.name ?? 'Unnamed';
 
