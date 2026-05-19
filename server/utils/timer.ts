@@ -28,7 +28,9 @@ export async function promoteHalfOne(db: Db, row: RunningTimer): Promise<number>
     name: row.name,
     date: row.startedDate,
     blocks: 0.5,
-    position
+    position,
+    startedAt: row.startedAt,
+    endedAt: new Date()
   }).returning({ id: schema.entries.id })
 
   await db.update(schema.runningTimers).set({ firstEntryId: entry!.id })
@@ -43,7 +45,8 @@ export async function promoteHalfOne(db: Db, row: RunningTimer): Promise<number>
  */
 export async function finalizeAndStop(db: Db, row: RunningTimer): Promise<void> {
   if (row.firstEntryId != null) {
-    await db.update(schema.entries).set({ blocks: 1 })
+    await db.update(schema.entries)
+      .set({ blocks: 1, secondStartedAt: row.startedAt, secondEndedAt: new Date() })
       .where(and(eq(schema.entries.id, row.firstEntryId), eq(schema.entries.userId, row.userId)))
   }
   await db.delete(schema.runningTimers).where(eq(schema.runningTimers.id, row.id))

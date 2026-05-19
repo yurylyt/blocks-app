@@ -64,6 +64,13 @@
       "when": 1777321006653,
       "tag": "0008_curved_salo",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1779171810563,
+      "tag": "0009_long_shaman",
+      "breakpoints": true
     }
   ]
 }

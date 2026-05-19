@@ -32,6 +32,10 @@ export const entries = pgTable('entries', {
   date: text('date').notNull(),
   blocks: real('blocks').notNull().default(1),
   position: integer('position').notNull().default(0),
+  startedAt: timestamp('started_at', { withTimezone: true }),
+  endedAt: timestamp('ended_at', { withTimezone: true }),
+  secondStartedAt: timestamp('second_started_at', { withTimezone: true }),
+  secondEndedAt: timestamp('second_ended_at', { withTimezone: true }),
   createdAt: timestamp('created_at').notNull().defaultNow()
 }, t => [
   index('entries_user_date_idx').on(t.userId, t.date)

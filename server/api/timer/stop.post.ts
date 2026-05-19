@@ -26,7 +26,9 @@ export default defineEventHandler(async (event) => {
         name: row.name,
         date: row.startedDate,
         blocks: 0.5,
-        position
+        position,
+        startedAt: row.startedAt,
+        endedAt: new Date()
       }).returning({ id: schema.entries.id })
       entryId = entry!.id
     } else if (row.firstEntryId != null) {
@@ -34,7 +36,8 @@ export default defineEventHandler(async (event) => {
     }
   } else if (row.half === 2) {
     if (elapsed >= HALF_BLOCK_MIN_MS && row.firstEntryId != null) {
-      await db.update(schema.entries).set({ blocks: 1 })
+      await db.update(schema.entries)
+        .set({ blocks: 1, secondStartedAt: row.startedAt, secondEndedAt: new Date() })
         .where(and(eq(schema.entries.id, row.firstEntryId), eq(schema.entries.userId, userId)))
     }
     entryId = row.firstEntryId

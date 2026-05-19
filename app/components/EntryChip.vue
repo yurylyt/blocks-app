@@ -19,6 +19,21 @@ const name = computed(() => props.activity?.name ?? props.entry.name ?? 'Unknown
 const isHalf = computed(() => props.entry.blocks === 0.5)
 const swatch = useSwatch(() => props.activity?.color ?? 'slate')
 
+const timeFmt = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', hour12: false })
+function fmt(value: Date | string | null | undefined): string | null {
+  if (!value) return null
+  const d = value instanceof Date ? value : new Date(value)
+  return Number.isNaN(d.getTime()) ? null : timeFmt.format(d)
+}
+function range(a: Date | string | null | undefined, b: Date | string | null | undefined): string | null {
+  const s = fmt(a)
+  const e = fmt(b)
+  return s && e ? `${s}–${e}` : null
+}
+const firstRange = computed(() => range(props.entry.startedAt, props.entry.endedAt))
+const secondRange = computed(() => range(props.entry.secondStartedAt, props.entry.secondEndedAt))
+const hasTimes = computed(() => firstRange.value != null)
+
 const cardStyle = computed(() => ({
   background: isHalf.value
     ? `repeating-linear-gradient(-45deg, ${swatch.value.surface} 0 8px, ${swatch.value.bg} 8px 16px)`
@@ -115,6 +130,17 @@ function onToggleClick() {
       />
       <span class="truncate">{{ name }}</span>
     </button>
+    <span
+      v-if="hasTimes"
+      class="shrink-0 text-[11px] tabular-nums leading-tight text-dimmed"
+      :class="isHalf ? 'whitespace-nowrap' : 'flex flex-col items-end'"
+    >
+      <template v-if="isHalf">{{ firstRange }}</template>
+      <template v-else>
+        <span>{{ firstRange }}</span>
+        <span v-if="secondRange">{{ secondRange }}</span>
+      </template>
+    </span>
     <EditEntryMenu
       :entry="entry"
       :activities="activities"
